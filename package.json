@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "https://www.codewars.com/kata/59f9cad032b8b91e12000035",
   "scripts": {
-    "test": "test"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
