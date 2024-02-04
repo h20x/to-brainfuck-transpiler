@@ -157,4 +157,11 @@ describe('Lexer', () => {
       expect(token.getValue()).toBe(value);
     });
   });
+
+  test('peekNextToken()', () => {
+    const lexer = new Lexer('x');
+    const token = lexer.peekNextToken();
+    expect(token.getType()).toBe(_.ID);
+    expect(token.getValue()).toBe('x');
+  });
 });

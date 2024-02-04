@@ -52,6 +52,14 @@ class Lexer {
     this._throwError();
   }
 
+  peekNextToken() {
+    const pos = this._pos;
+    const token = this.getNextToken();
+    this._pos = pos;
+
+    return token;
+  }
+
   _advance(n = 1) {
     for (let i = 0; i < n; i++) {
       this._pos++;
