@@ -11,9 +11,26 @@ class Lexer {
   constructor(program) {
     this._program = program;
     this._pos = 0;
+    this._curToken = null;
   }
 
   getNextToken() {
+    return (this._curToken = this._nextToken());
+  }
+
+  peekNextToken() {
+    const pos = this._pos;
+    const token = this._nextToken();
+    this._pos = pos;
+
+    return token;
+  }
+
+  curToken() {
+    return this._curToken;
+  }
+
+  _nextToken() {
     this._skipComments();
 
     if (this._isEOF()) {
@@ -50,14 +67,6 @@ class Lexer {
     }
 
     this._throwError();
-  }
-
-  peekNextToken() {
-    const pos = this._pos;
-    const token = this.getNextToken();
-    this._pos = pos;
-
-    return token;
   }
 
   _advance(n = 1) {
