@@ -158,10 +158,24 @@ describe('Lexer', () => {
     });
   });
 
+  test.each([`'0`, `"abc`])('should throw: %s', (input) => {
+    const lexer = new Lexer(input);
+
+    expect(() => lexer.getNextToken()).toThrow();
+  });
+
   test('peekNextToken()', () => {
-    const lexer = new Lexer('x');
-    const token = lexer.peekNextToken();
-    expect(token.getType()).toBe(_.ID);
-    expect(token.getValue()).toBe('x');
+    const lexer = new Lexer('x 0');
+
+    lexer.getNextToken();
+    expect(lexer.curToken().getType()).toBe(_.ID);
+
+    expect(lexer.peekNextToken().getType()).toBe(_.NUM);
+    expect(lexer.peekNextToken().getValue()).toBe(0);
+
+    lexer.getNextToken();
+    expect(lexer.curToken().getType()).toBe(_.NUM);
+
+    expect(lexer.peekNextToken().getType()).toBe(_.EOF);
   });
 });
