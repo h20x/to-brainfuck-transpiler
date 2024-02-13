@@ -21,7 +21,7 @@ class Parser {
       closingTokens.push(TokenType.END);
     }
 
-    while (!closingTokens.includes(this._curToken().getType())) {
+    while (!closingTokens.includes(this._curTokenType())) {
       node.addChild(this._parseStatement());
     }
 
@@ -29,9 +29,7 @@ class Parser {
   }
 
   _parseStatement() {
-    const tokenType = this._curToken().getType();
-
-    switch (tokenType) {
+    switch (this._curTokenType()) {
       case TokenType.VAR:
       case TokenType.SET:
       case TokenType.INC:
@@ -50,24 +48,24 @@ class Parser {
       case TokenType.READ:
       case TokenType.CALL:
       case TokenType.MSG:
-        return this._parseSimpleStatement(tokenType);
+        return this._parseSimpleStatement();
 
       case TokenType.IFEQ:
       case TokenType.IFNEQ:
       case TokenType.WNEQ:
       case TokenType.PROC:
-        return this._parseCompoundStatement(tokenType);
+        return this._parseCompoundStatement();
 
       default:
         this._throwError();
     }
   }
 
-  _parseSimpleStatement(tokenType) {
+  _parseSimpleStatement() {
     let nodeType;
     let args;
 
-    switch (tokenType) {
+    switch (this._curTokenType()) {
       case TokenType.VAR:
         nodeType = ASTNodeType.VAR;
         args = 'id|lst+';
@@ -162,7 +160,7 @@ class Parser {
         this._throwError();
     }
 
-    this._consume(tokenType);
+    this._consume(this._curTokenType());
 
     const node = new ASTNode(nodeType);
     new ArgsParser(this._lexer)
@@ -172,11 +170,11 @@ class Parser {
     return node;
   }
 
-  _parseCompoundStatement(tokenType) {
+  _parseCompoundStatement() {
     let nodeType;
     let args;
 
-    switch (tokenType) {
+    switch (this._curTokenType()) {
       case TokenType.IFEQ:
         nodeType = ASTNodeType.IFEQ;
         args = 'id, id|num|ch';
@@ -201,7 +199,7 @@ class Parser {
         this._throwError();
     }
 
-    this._consume(tokenType);
+    this._consume(this._curTokenType());
 
     const node = new ASTNode(nodeType);
     new ArgsParser(this._lexer)
@@ -215,7 +213,7 @@ class Parser {
   }
 
   _consume(type) {
-    if (type !== this._curToken().getType()) {
+    if (type !== this._curTokenType()) {
       this._throwError();
     }
 
@@ -226,13 +224,13 @@ class Parser {
     return this._lexer.getNextToken();
   }
 
-  _curToken() {
-    return this._lexer.curToken();
+  _curTokenType() {
+    return this._lexer.curToken().getType();
   }
 
   _throwError() {
     throw new Error(
-      `Parsing Error: Unexpected token '${this._curToken().getType()}'`
+      `Parsing Error: Unexpected token '${this._curTokenType()}'`
     );
   }
 }
