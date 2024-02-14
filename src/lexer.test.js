@@ -168,13 +168,13 @@ describe('Lexer', () => {
     const lexer = new Lexer('x 0');
 
     lexer.getNextToken();
-    expect(lexer.curToken().getType()).toBe(_.ID);
+    expect(lexer.getCurToken().getType()).toBe(_.ID);
 
     expect(lexer.peekNextToken().getType()).toBe(_.NUM);
     expect(lexer.peekNextToken().getValue()).toBe(0);
 
     lexer.getNextToken();
-    expect(lexer.curToken().getType()).toBe(_.NUM);
+    expect(lexer.getCurToken().getType()).toBe(_.NUM);
 
     expect(lexer.peekNextToken().getType()).toBe(_.EOF);
   });

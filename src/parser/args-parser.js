@@ -169,11 +169,11 @@ class ArgsParser {
   }
 
   _curTokenType() {
-    return this._lexer.curToken().getType();
+    return this._lexer.getCurToken().getType();
   }
 
   _curTokenValue() {
-    return this._lexer.curToken().getValue();
+    return this._lexer.getCurToken().getValue();
   }
 
   _throwError() {

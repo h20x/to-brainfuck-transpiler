@@ -225,7 +225,7 @@ class Parser {
   }
 
   _curTokenType() {
-    return this._lexer.curToken().getType();
+    return this._lexer.getCurToken().getType();
   }
 
   _throwError() {

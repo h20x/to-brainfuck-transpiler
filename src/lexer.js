@@ -26,7 +26,7 @@ class Lexer {
     return token;
   }
 
-  curToken() {
+  getCurToken() {
     return this._curToken;
   }
 
