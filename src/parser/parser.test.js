@@ -1,7 +1,6 @@
 const { Lexer } = require('../lexer');
 const { Parser } = require('./parser');
-const { ASTNodeType } = require('../ast');
-const { astToString } = require('./ast-to-string');
+const { astToString } = require('../ast');
 
 describe('Parser', () => {
   test.each([

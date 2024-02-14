@@ -1,6 +1,6 @@
 const { ArgsParser } = require('./args-parser');
 const { Lexer } = require('../lexer');
-const { astToString } = require('./ast-to-string');
+const { astToString } = require('../ast');
 
 describe('ArgsParser', () => {
   test.each([
