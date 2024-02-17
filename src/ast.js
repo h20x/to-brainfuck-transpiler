@@ -1,8 +1,7 @@
 const ASTNodeType = {
   STATEMENT_LIST: 'STATEMENT_LIST',
   VAR: 'VAR',
-  ID: 'ID',
-  LIST: 'LIST',
+  ARR: 'ARR',
   NUM: 'NUM',
   SET: 'SET',
   INC: 'INC',
@@ -27,6 +26,10 @@ const ASTNodeType = {
   PROC: 'PROC',
   CALL: 'CALL',
   CHAR: 'CHAR',
+  VAR_LIST: 'VAR_LIST',
+  VAR_DECL: 'VAR_DECL',
+  ARR_DECL: 'ARR_DECL',
+  PROC_DEF: 'PROC_DEF',
 };
 
 class ASTNode {
@@ -61,7 +64,10 @@ function astToString(node) {
   const type = node.getType();
 
   switch (type) {
-    case ASTNodeType.VAR:
+    case ASTNodeType.STATEMENT_LIST:
+      return `{ ${children(node)} }`;
+
+    case ASTNodeType.VAR_LIST:
     case ASTNodeType.SET:
     case ASTNodeType.INC:
     case ASTNodeType.DEC:
@@ -81,33 +87,23 @@ function astToString(node) {
     case ASTNodeType.IFEQ:
     case ASTNodeType.IFNEQ:
     case ASTNodeType.WNEQ:
-    case ASTNodeType.PROC:
     case ASTNodeType.CALL:
-      const children = node
-        .getChildren()
-        .map((c) => astToString(c))
-        .join(' ');
+    case ASTNodeType.PROC_DEF:
+      return `${type} ${children(node)}`;
 
-      return `${type} ${children}`;
-
-    case ASTNodeType.STATEMENT_LIST:
-      return `{ ${node
-        .getChildren()
-        .map((c) => astToString(c))
-        .join(' ')} }`;
-
-    case ASTNodeType.ID:
+    case ASTNodeType.VAR:
+    case ASTNodeType.ARR:
+    case ASTNodeType.PROC:
+    case ASTNodeType.VAR_DECL:
       return `${type} '${node.getAttribute('name')}'`;
 
-    case ASTNodeType.LIST:
+    case ASTNodeType.ARR_DECL:
       const name = node.getAttribute('name');
       const size = node.getAttribute('size');
 
-      return `${type} '${name}' ${size}`;
+      return `${type} '${name}[${size}]'`;
 
     case ASTNodeType.NUM:
-      return `${type} ${node.getAttribute('value')}`;
-
     case ASTNodeType.CHAR:
     case ASTNodeType.STR:
       return `${type} '${node.getAttribute('value')}'`;
@@ -115,6 +111,13 @@ function astToString(node) {
     default:
       throw new Error(`Unknown node type: ${type}`);
   }
+}
+
+function children(node) {
+  return node
+    .getChildren()
+    .map((c) => astToString(c))
+    .join(' ');
 }
 
 module.exports = { ASTNode, ASTNodeType, astToString };

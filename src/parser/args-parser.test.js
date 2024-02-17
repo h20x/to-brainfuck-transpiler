@@ -4,26 +4,35 @@ const { astToString } = require('../ast');
 
 describe('ArgsParser', () => {
   test.each([
-    [`a`, `id`, `ID 'a'`],
-    [`0`, `num`, `NUM 0`],
+    [`a`, `vardecl`, `VAR_DECL 'a'`],
+    [`a`, `var`, `VAR 'a'`],
+    [`a`, `arr`, `ARR 'a'`],
+    [`a`, `proc`, `PROC 'a'`],
+    [`0`, `num`, `NUM '0'`],
     [`'a'`, `ch`, `CHAR 'a'`],
     [`"abc"`, `str`, `STR 'abc'`],
-    [`a[1]`, `lst`, `LIST 'a' 1`],
+    [`a[1]`, `arrdecl`, `ARR_DECL 'a[1]'`],
     [
-      `a 0 'a' "abc" a[1]`,
-      `id, num, ch, str, lst`,
-      `ID 'a' NUM 0 CHAR 'a' STR 'abc' LIST 'a' 1`,
+      `a b 0 'a' "abc"`,
+      `var, arr, num, ch, str`,
+      `VAR 'a' ARR 'b' NUM '0' CHAR 'a' STR 'abc'`,
     ],
     [
-      `a 0 'a' "abc" a[1]`,
-      `id|num|ch|str|lst, id|num|ch|str|lst, id|num|ch|str|lst, id|num|ch|str|lst, id|num|ch|str|lst`,
-      `ID 'a' NUM 0 CHAR 'a' STR 'abc' LIST 'a' 1`,
+      `a b c[1]`,
+      `vardecl|arrdecl, vardecl|arrdecl, vardecl|arrdecl`,
+      `VAR_DECL 'a' VAR_DECL 'b' ARR_DECL 'c[1]'`,
     ],
-    [``, `id*`, ``],
-    [`a`, `id+`, `ID 'a'`],
-    [`a`, `id, num*`, `ID 'a'`],
-    [`a b c`, `id+`, `ID 'a' ID 'b' ID 'c'`],
-    [`a 0 1`, `id, id|num+`, `ID 'a' NUM 0 NUM 1`],
+    [
+      `'a' "abc" 0`,
+      `num|ch|str, num|ch|str, num|ch|str`,
+      `CHAR 'a' STR 'abc' NUM '0'`,
+    ],
+    [``, `var*`, ``],
+    [`a`, `var+`, `VAR 'a'`],
+    [`a`, `var, num*`, `VAR 'a'`],
+    [`a b c`, `var+`, `VAR 'a' VAR 'b' VAR 'c'`],
+    [`a 0 1`, `var, var|num+`, `VAR 'a' NUM '0' NUM '1'`],
+    [`a b c`, `proc, var*`, `PROC 'a' VAR 'b' VAR 'c'`],
   ])('should parse: %s', (code, pattern, expected) => {
     const result = createParser(code)
       .parse(pattern)
@@ -34,10 +43,10 @@ describe('ArgsParser', () => {
   });
 
   test.each([
-    [`a`, `id, id`],
+    [`a`, `var, var`],
     [`a`, `num`],
-    [`a`, `id, num+`],
-    [`a 0`, `id, id|ch`],
+    [`a`, `var, num+`],
+    [`a 0`, `var, var|ch`],
   ])('should throw: %s', (code, pattern) => {
     expect(() => createParser(code).parse(pattern)).toThrow();
   });

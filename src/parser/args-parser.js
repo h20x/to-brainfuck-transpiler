@@ -55,12 +55,24 @@ class ArgsParser {
       const type = types[i];
 
       switch (type) {
-        case 'id':
-          node = this._parseID();
+        case 'arrdecl':
+          node = this._parseARRDECL();
           break;
 
-        case 'lst':
-          node = this._parseLIST();
+        case 'vardecl':
+          node = this._parseID(ASTNodeType.VAR_DECL);
+          break;
+
+        case 'var':
+          node = this._parseID(ASTNodeType.VAR);
+          break;
+
+        case 'arr':
+          node = this._parseID(ASTNodeType.ARR);
+          break;
+
+        case 'proc':
+          node = this._parseID(ASTNodeType.PROC);
           break;
 
         case 'num':
@@ -83,15 +95,31 @@ class ArgsParser {
     return node;
   }
 
-  _parseID() {
-    if (
-      TokenType.ID !== this._curTokenType() ||
-      TokenType.LBRACKET === this._lexer.peekNextToken().getType()
-    ) {
+  _parseARRDECL() {
+    if (!this._isARR()) {
       return null;
     }
 
-    const node = new ASTNode(ASTNodeType.ID);
+    const node = new ASTNode(ASTNodeType.ARR_DECL);
+    node.setAttribute('name', this._curTokenValue());
+
+    this._consume(TokenType.ID);
+    this._consume(TokenType.LBRACKET);
+
+    node.setAttribute('size', this._curTokenValue());
+
+    this._consume(TokenType.NUM);
+    this._consume(TokenType.RBRACKET);
+
+    return node;
+  }
+
+  _parseID(nodeType) {
+    if (!this._isID()) {
+      return null;
+    }
+
+    const node = new ASTNode(nodeType);
     node.setAttribute('name', this._curTokenValue());
 
     this._consume(TokenType.ID);
@@ -138,26 +166,18 @@ class ArgsParser {
     return node;
   }
 
-  _parseLIST() {
-    if (
-      TokenType.ID !== this._curTokenType() ||
+  _isID() {
+    return (
+      TokenType.ID === this._curTokenType() &&
       TokenType.LBRACKET !== this._lexer.peekNextToken().getType()
-    ) {
-      return null;
-    }
+    );
+  }
 
-    const node = new ASTNode(ASTNodeType.LIST);
-    node.setAttribute('name', this._curTokenValue());
-
-    this._consume(TokenType.ID);
-    this._consume(TokenType.LBRACKET);
-
-    node.setAttribute('size', this._curTokenValue());
-
-    this._consume(TokenType.NUM);
-    this._consume(TokenType.RBRACKET);
-
-    return node;
+  _isARR() {
+    return (
+      TokenType.ID === this._curTokenType() &&
+      TokenType.LBRACKET === this._lexer.peekNextToken().getType()
+    );
   }
 
   _consume(type) {

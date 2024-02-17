@@ -2,6 +2,31 @@ const { ASTNode, ASTNodeType } = require('../ast');
 const { TokenType } = require('../token');
 const { ArgsParser } = require('./args-parser');
 
+const STATEMENTS = {
+  [TokenType.VAR]: [ASTNodeType.VAR_LIST, 'vardecl|arrdecl+'],
+  [TokenType.SET]: [ASTNodeType.SET, 'var, var|num|ch'],
+  [TokenType.INC]: [ASTNodeType.INC, 'var, var|num|ch'],
+  [TokenType.DEC]: [ASTNodeType.DEC, 'var, var|num|ch'],
+  [TokenType.ADD]: [ASTNodeType.ADD, 'var|num|ch, var|num|ch, var'],
+  [TokenType.SUB]: [ASTNodeType.SUB, 'var|num|ch, var|num|ch, var'],
+  [TokenType.MUL]: [ASTNodeType.MUL, 'var|num|ch, var|num|ch, var'],
+  [TokenType.DIVMOD]: [ASTNodeType.DIVMOD, 'var|num|ch, var|num|ch, var, var'],
+  [TokenType.DIV]: [ASTNodeType.DIV, 'var|num|ch, var|num|ch, var'],
+  [TokenType.MOD]: [ASTNodeType.MOD, 'var|num|ch, var|num|ch, var'],
+  [TokenType.CMP]: [ASTNodeType.CMP, 'var|num|ch, var|num|ch, var'],
+  [TokenType.A2B]: [ASTNodeType.A2B, 'var|num|ch, var|num|ch, var|num|ch, var'],
+  [TokenType.B2A]: [ASTNodeType.B2A, 'var|num|ch, var, var, var'],
+  [TokenType.READ]: [ASTNodeType.READ, 'var'],
+  [TokenType.LSET]: [ASTNodeType.LSET, 'arr, var|num|ch, var|num|ch'],
+  [TokenType.LGET]: [ASTNodeType.LGET, 'arr, var|num|ch, var'],
+  [TokenType.CALL]: [ASTNodeType.CALL, 'proc, var*'],
+  [TokenType.MSG]: [ASTNodeType.MSG, 'var|str+'],
+  [TokenType.IFEQ]: [ASTNodeType.IFEQ, 'var, var|num|ch', true],
+  [TokenType.IFNEQ]: [ASTNodeType.IFNEQ, 'var, var|num|ch', true],
+  [TokenType.WNEQ]: [ASTNodeType.WNEQ, 'var, var|num|ch', true],
+  [TokenType.PROC]: [ASTNodeType.PROC_DEF, 'proc, vardecl*', true],
+};
+
 class Parser {
   constructor(lexer) {
     this._lexer = lexer;
@@ -29,185 +54,25 @@ class Parser {
   }
 
   _parseStatement() {
-    switch (this._curTokenType()) {
-      case TokenType.VAR:
-      case TokenType.SET:
-      case TokenType.INC:
-      case TokenType.DEC:
-      case TokenType.ADD:
-      case TokenType.SUB:
-      case TokenType.MUL:
-      case TokenType.DIVMOD:
-      case TokenType.DIV:
-      case TokenType.MOD:
-      case TokenType.CMP:
-      case TokenType.A2B:
-      case TokenType.B2A:
-      case TokenType.LSET:
-      case TokenType.LGET:
-      case TokenType.READ:
-      case TokenType.CALL:
-      case TokenType.MSG:
-        return this._parseSimpleStatement();
+    const stmtData = STATEMENTS[this._curTokenType()];
 
-      case TokenType.IFEQ:
-      case TokenType.IFNEQ:
-      case TokenType.WNEQ:
-      case TokenType.PROC:
-        return this._parseCompoundStatement();
-
-      default:
-        this._throwError();
+    if (null == stmtData) {
+      this._throwError();
     }
-  }
 
-  _parseSimpleStatement() {
-    let nodeType;
-    let args;
-
-    switch (this._curTokenType()) {
-      case TokenType.VAR:
-        nodeType = ASTNodeType.VAR;
-        args = 'id|lst+';
-        break;
-
-      case TokenType.SET:
-        nodeType = ASTNodeType.SET;
-        args = 'id, id|num|ch';
-        break;
-
-      case TokenType.INC:
-        nodeType = ASTNodeType.INC;
-        args = 'id, id|num|ch';
-        break;
-
-      case TokenType.DEC:
-        nodeType = ASTNodeType.DEC;
-        args = 'id, id|num|ch';
-        break;
-
-      case TokenType.ADD:
-        nodeType = ASTNodeType.ADD;
-        args = 'id|num|ch, id|num|ch, id';
-        break;
-
-      case TokenType.SUB:
-        nodeType = ASTNodeType.SUB;
-        args = 'id|num|ch, id|num|ch, id';
-        break;
-
-      case TokenType.MUL:
-        nodeType = ASTNodeType.MUL;
-        args = 'id|num|ch, id|num|ch, id';
-        break;
-
-      case TokenType.DIVMOD:
-        nodeType = ASTNodeType.DIVMOD;
-        args = 'id|num|ch, id|num|ch, id, id';
-        break;
-
-      case TokenType.DIV:
-        nodeType = ASTNodeType.DIV;
-        args = 'id|num|ch, id|num|ch, id';
-        break;
-
-      case TokenType.MOD:
-        nodeType = ASTNodeType.MOD;
-        args = 'id|num|ch, id|num|ch, id';
-        break;
-
-      case TokenType.CMP:
-        nodeType = ASTNodeType.CMP;
-        args = 'id|num|ch, id|num|ch, id';
-        break;
-
-      case TokenType.A2B:
-        nodeType = ASTNodeType.A2B;
-        args = 'id|num|ch, id|num|ch, id|num|ch, id';
-        break;
-
-      case TokenType.B2A:
-        nodeType = ASTNodeType.B2A;
-        args = 'id|num|ch, id, id, id';
-        break;
-
-      case TokenType.READ:
-        nodeType = ASTNodeType.READ;
-        args = 'id';
-        break;
-
-      case TokenType.LSET:
-        nodeType = ASTNodeType.LSET;
-        args = 'id, id|num|ch, id|num|ch';
-        break;
-
-      case TokenType.LGET:
-        nodeType = ASTNodeType.LGET;
-        args = 'id, id|num|ch, id';
-        break;
-
-      case TokenType.CALL:
-        nodeType = ASTNodeType.CALL;
-        args = 'id, id*';
-        break;
-
-      case TokenType.MSG:
-        nodeType = ASTNodeType.MSG;
-        args = 'id|str+';
-        break;
-
-      default:
-        this._throwError();
-    }
+    const [nodeType, args, compound] = stmtData;
+    const node = new ASTNode(nodeType);
 
     this._consume(this._curTokenType());
 
-    const node = new ASTNode(nodeType);
     new ArgsParser(this._lexer)
       .parse(args)
       .forEach((arg) => node.addChild(arg));
 
-    return node;
-  }
-
-  _parseCompoundStatement() {
-    let nodeType;
-    let args;
-
-    switch (this._curTokenType()) {
-      case TokenType.IFEQ:
-        nodeType = ASTNodeType.IFEQ;
-        args = 'id, id|num|ch';
-        break;
-
-      case TokenType.IFNEQ:
-        nodeType = ASTNodeType.IFNEQ;
-        args = 'id, id|num|ch';
-        break;
-
-      case TokenType.WNEQ:
-        nodeType = ASTNodeType.WNEQ;
-        args = 'id, id|num|ch';
-        break;
-
-      case TokenType.PROC:
-        nodeType = ASTNodeType.PROC;
-        args = 'id, id*';
-        break;
-
-      default:
-        this._throwError();
+    if (compound) {
+      node.addChild(this._parseStatements(true));
+      this._consume(TokenType.END);
     }
-
-    this._consume(this._curTokenType());
-
-    const node = new ASTNode(nodeType);
-    new ArgsParser(this._lexer)
-      .parse(args)
-      .forEach((arg) => node.addChild(arg));
-    node.addChild(this._parseStatements(true));
-
-    this._consume(TokenType.END);
 
     return node;
   }
