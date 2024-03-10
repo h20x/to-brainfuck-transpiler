@@ -1,123 +1,172 @@
-const ASTNodeType = {
-  STATEMENT_LIST: 'STATEMENT_LIST',
-  VAR: 'VAR',
-  ARR: 'ARR',
-  NUM: 'NUM',
-  SET: 'SET',
-  INC: 'INC',
-  DEC: 'DEC',
-  ADD: 'ADD',
-  SUB: 'SUB',
-  MUL: 'MUL',
-  DIVMOD: 'DIVMOD',
-  DIV: 'DIV',
-  MOD: 'MOD',
-  CMP: 'CMP',
-  A2B: 'A2B',
-  B2A: 'B2A',
-  READ: 'READ',
-  LSET: 'LSET',
-  LGET: 'LGET',
-  MSG: 'MSG',
-  STR: 'STR',
-  IFEQ: 'IFEQ',
-  IFNEQ: 'IFNEQ',
-  WNEQ: 'WNEQ',
-  PROC: 'PROC',
-  CALL: 'CALL',
-  CHAR: 'CHAR',
-  VAR_LIST: 'VAR_LIST',
-  VAR_DECL: 'VAR_DECL',
-  ARR_DECL: 'ARR_DECL',
-  PROC_DEF: 'PROC_DEF',
-};
+const { createEnum } = require('./enum');
+
+// prettier-ignore
+const ASTNodeType = createEnum([
+  'STMT_LIST', 'DECL_LIST', 'SET', 'INC', 'DEC', 'ADD', 'SUB', 'MUL', 'DIVMOD',
+  'DIV', 'MOD', 'CMP', 'A2B', 'B2A', 'READ', 'LSET', 'LGET', 'MSG', 'CALL',
+  'IFEQ', 'IFNEQ', 'WNEQ', 'PROC_DEF', 'CHAR', 'STR', 'NUM', 'VAR_DECL',
+  'ARR_DECL', 'VAR_REF', 'ARR_REF', 'PROC_REF',
+]);
 
 class ASTNode {
   constructor(type) {
     this._type = type;
-    this._children = [];
-    this._attributes = new Map();
   }
 
-  addChild(node) {
-    this._children.push(node);
-  }
-
-  getType() {
+  type() {
     return this._type;
   }
 
-  getChildren() {
+  accept(visitor) {}
+}
+
+class Stmt extends ASTNode {
+  constructor(type, args = []) {
+    super(type);
+    this._args = args.slice();
+  }
+
+  args() {
+    return this._args.slice();
+  }
+
+  accept(visitor) {
+    return visitor.visitStmt(this);
+  }
+}
+
+class CompStmt extends Stmt {
+  constructor(type, args, body) {
+    super(type, args);
+    this._body = body;
+  }
+
+  body() {
+    return this._body;
+  }
+
+  accept(visitor) {
+    return visitor.visitCompoundStmt(this);
+  }
+}
+
+class Prim extends ASTNode {
+  constructor(type, value) {
+    super(type);
+    this._value = value;
+  }
+
+  value() {
+    return this._value;
+  }
+
+  accept(visitor) {
+    return visitor.visitPrimitive(this);
+  }
+}
+
+class Ref extends ASTNode {
+  constructor(type, name) {
+    super(type);
+    this._name = name;
+  }
+
+  name() {
+    return this._name;
+  }
+
+  accept(visitor) {
+    return visitor.visitRef(this);
+  }
+}
+
+class Decl extends ASTNode {
+  constructor(type, name, size = 1) {
+    super(type);
+    this._name = name;
+    this._size = size;
+  }
+
+  name() {
+    return this._name;
+  }
+
+  size() {
+    return this._size;
+  }
+
+  accept(visitor) {
+    return visitor.visitDecl(this);
+  }
+}
+
+class StmtList extends ASTNode {
+  constructor(children) {
+    super(ASTNodeType.STMT_LIST);
+    this._children = children.slice();
+  }
+
+  children() {
     return this._children.slice();
   }
 
-  getAttribute(name) {
-    return this._attributes.get(name);
-  }
-
-  setAttribute(name, value) {
-    this._attributes.set(name, value);
+  accept(visitor) {
+    return visitor.visitStmtList(this);
   }
 }
 
-function astToString(node) {
-  const type = node.getType();
+class ProcDef extends CompStmt {
+  constructor(name, params, body) {
+    super(ASTNodeType.PROC_DEF, [], body);
+    this._name = name;
+    this._params = params.slice();
+  }
 
-  switch (type) {
-    case ASTNodeType.STATEMENT_LIST:
-      return `{ ${children(node)} }`;
+  name() {
+    return this._name;
+  }
 
-    case ASTNodeType.VAR_LIST:
-    case ASTNodeType.SET:
-    case ASTNodeType.INC:
-    case ASTNodeType.DEC:
-    case ASTNodeType.ADD:
-    case ASTNodeType.SUB:
-    case ASTNodeType.MUL:
-    case ASTNodeType.DIVMOD:
-    case ASTNodeType.DIV:
-    case ASTNodeType.MOD:
-    case ASTNodeType.CMP:
-    case ASTNodeType.A2B:
-    case ASTNodeType.B2A:
-    case ASTNodeType.READ:
-    case ASTNodeType.LSET:
-    case ASTNodeType.LGET:
-    case ASTNodeType.MSG:
-    case ASTNodeType.IFEQ:
-    case ASTNodeType.IFNEQ:
-    case ASTNodeType.WNEQ:
-    case ASTNodeType.CALL:
-    case ASTNodeType.PROC_DEF:
-      return `${type} ${children(node)}`;
+  params() {
+    return this._params.slice();
+  }
 
-    case ASTNodeType.VAR:
-    case ASTNodeType.ARR:
-    case ASTNodeType.PROC:
-    case ASTNodeType.VAR_DECL:
-      return `${type} '${node.getAttribute('name')}'`;
-
-    case ASTNodeType.ARR_DECL:
-      const name = node.getAttribute('name');
-      const size = node.getAttribute('size');
-
-      return `${type} '${name}[${size}]'`;
-
-    case ASTNodeType.NUM:
-    case ASTNodeType.CHAR:
-    case ASTNodeType.STR:
-      return `${type} '${node.getAttribute('value')}'`;
-
-    default:
-      throw new Error(`Unknown node type: ${type}`);
+  accept(visitor) {
+    return visitor.visitProcDef(this);
   }
 }
 
-function children(node) {
-  return node
-    .getChildren()
-    .map((c) => astToString(c))
-    .join(' ');
+class NodeVisitor {
+  visit(node) {
+    return node.accept(this);
+  }
+
+  visitStmt(node) {}
+
+  visitCompoundStmt(node) {}
+
+  visitPrimitive(node) {}
+
+  visitRef(node) {}
+
+  visitDecl(node) {}
+
+  visitStmtList(node) {
+    for (const stmt of node.children()) {
+      stmt.accept(this);
+    }
+  }
+
+  visitProcDef(node) {}
 }
 
-module.exports = { ASTNode, ASTNodeType, astToString };
+module.exports = {
+  ASTNodeType,
+  NodeVisitor,
+  Stmt,
+  CompStmt,
+  Prim,
+  Ref,
+  Decl,
+  StmtList,
+  ProcDef,
+};

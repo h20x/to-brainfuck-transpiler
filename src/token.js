@@ -1,35 +1,12 @@
-const TokenType = {
-  VAR: 'VAR',
-  SET: 'SET',
-  INC: 'INC',
-  DEC: 'DEC',
-  ADD: 'ADD',
-  SUB: 'SUB',
-  MUL: 'MUL',
-  DIVMOD: 'DIVMOD',
-  DIV: 'DIV',
-  MOD: 'MOD',
-  CMP: 'CMP',
-  A2B: 'A2B',
-  B2A: 'B2A',
-  LSET: 'LSET',
-  LGET: 'LGET',
-  IFEQ: 'IFEQ',
-  IFNEQ: 'IFNEQ',
-  WNEQ: 'WNEQ',
-  PROC: 'PROC',
-  END: 'END',
-  CALL: 'CALL',
-  READ: 'READ',
-  MSG: 'MSG',
-  ID: 'ID',
-  NUM: 'NUM',
-  CHAR: 'CHAR',
-  STR: 'STR',
-  LBRACKET: 'LBRACKET',
-  RBRACKET: 'RBRACKET',
-  EOF: 'EOF',
-};
+const { createEnum } = require('./enum');
+
+// prettier-ignore
+const TokenType = createEnum([
+  'VAR', 'SET', 'INC', 'DEC', 'ADD', 'SUB', 'MUL', 'DIVMOD', 'DIV', 'MOD',
+  'CMP', 'A2B', 'B2A', 'LSET', 'LGET', 'IFEQ', 'IFNEQ', 'WNEQ', 'PROC', 'END',
+  'CALL', 'READ', 'MSG', 'ID', 'NUM', 'CHAR', 'STR', 'LBRACKET', 'RBRACKET',
+  'EOF', 'VAR_REF', 'ARR_REF', 'PROC_REF',
+]);
 
 class Token {
   constructor(type, value) {

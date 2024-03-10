@@ -153,6 +153,7 @@ describe('Lexer', () => {
 
     expected.forEach(([type, value]) => {
       const token = lexer.getNextToken();
+
       expect(token.getType()).toBe(type);
       expect(token.getValue()).toBe(value);
     });
