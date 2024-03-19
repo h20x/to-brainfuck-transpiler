@@ -75,7 +75,7 @@ class Lexer {
         break;
 
       default:
-        this._error('Unexpected character');
+        this._error(`Unexpected character: ${this._source.peek()}`);
     }
 
     return new Token(tokenType, tokenValue, tokenPos);

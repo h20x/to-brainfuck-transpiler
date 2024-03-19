@@ -192,7 +192,7 @@ describe('Parser', () => {
     [
       `proc a Q q
        end`,
-      `Duplicate param 'q' in procedure 'a'`,
+      `Duplicate param 'q' in 'a' procedure`,
     ],
     [
       `proc a

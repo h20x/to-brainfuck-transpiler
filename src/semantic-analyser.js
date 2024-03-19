@@ -29,7 +29,7 @@ class SemanticAnalyser extends NodeVisitor {
 
       if (actualParams.length !== formalParams.length) {
         this._errNotifier.notify(
-          `Wrong number of arguments for '${proc.name()}'`,
+          `Wrong number of arguments for '${proc.name()}' procedure`,
           node.sourcePos()
         );
       }

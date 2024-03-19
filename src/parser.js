@@ -16,7 +16,7 @@ const Error = {
   UNEXPECTED_TOKEN: (token) =>
     `Unexpected token: Token(type: ${token.type()}, value: ${token.value()})`,
   DUPLICATE_PARAM: (param, proc) =>
-    `Duplicate param '${param}' in procedure '${proc}'`,
+    `Duplicate param '${param}' in '${proc}' procedure`,
 };
 
 class Parser {
