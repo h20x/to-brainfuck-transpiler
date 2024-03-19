@@ -10,9 +10,19 @@ const {
 } = require('./ast');
 const { TokenType } = require('./token');
 
+const Error = {
+  NESTED_VAR: () => 'Nested variable declaration',
+  NESTED_PROC: () => 'Nested procedure definition',
+  UNEXPECTED_TOKEN: (token) =>
+    `Unexpected token: Token(type: ${token.getType()}, value: ${token.getValue()})`,
+  DUPLICATE_PARAM: (param, proc) =>
+    `Duplicate param '${param}' in procedure '${proc}'`,
+};
+
 class Parser {
-  constructor(lexer) {
+  constructor(lexer, errNotifier) {
     this._lexer = lexer;
+    this._errNotifier = errNotifier;
   }
 
   parse() {
@@ -28,7 +38,7 @@ class Parser {
       nodes.push(this._parseStatement());
     }
 
-    return new StmtList(nodes);
+    return new StmtList({ children: nodes });
   }
 
   _parseNestedStatements() {
@@ -36,11 +46,11 @@ class Parser {
 
     while (TokenType.END !== this._curTokenType()) {
       if (TokenType.VAR === this._curTokenType()) {
-        throw new Error(`Nested variable declaration`);
+        this._error(Error.NESTED_VAR());
       }
 
       if (TokenType.PROC === this._curTokenType()) {
-        throw new Error(`Nested procedure definition`);
+        this._error(Error.NESTED_PROC());
       }
 
       nodes.push(this._parseStatement());
@@ -48,7 +58,7 @@ class Parser {
 
     this._consume(TokenType.END);
 
-    return new StmtList(nodes);
+    return new StmtList({ children: nodes });
   }
 
   _parseStatement() {
@@ -239,26 +249,29 @@ class Parser {
         return this._parseProcDef();
 
       default:
-        this._throwUnexpectedToken();
+        this._unexpectedToken();
     }
   }
 
   _parseStmt({ nodeType, args }) {
+    const pos = this._curTokenPos();
     this._getNextToken();
     const _args = this._parseArgs(args);
 
-    return new Stmt(nodeType, _args);
+    return new Stmt({ type: nodeType, args: _args, sourcePos: pos });
   }
 
   _parseCompoundStmt({ nodeType, args }) {
+    const pos = this._curTokenPos();
     this._getNextToken();
     const _args = this._parseArgs(args);
     const body = this._parseNestedStatements();
 
-    return new CompStmt(nodeType, _args, body);
+    return new CompStmt({ type: nodeType, args: _args, body, sourcePos: pos });
   }
 
   _parseDeclList() {
+    const pos = this._curTokenPos();
     this._consume(TokenType.VAR);
     const args = [];
 
@@ -271,21 +284,23 @@ class Parser {
     }
 
     if (!args.length) {
-      this._throwUnexpectedToken();
+      this._unexpectedToken();
     }
 
-    return new Stmt(ASTNodeType.DECL_LIST, args);
+    return new Stmt({ type: ASTNodeType.DECL_LIST, args, sourcePos: pos });
   }
 
   _parseVarDecl() {
     const name = this._curTokenValue();
+    const pos = this._curTokenPos();
     this._consume(TokenType.ID);
 
-    return new Decl(ASTNodeType.VAR_DECL, name);
+    return new Decl({ type: ASTNodeType.VAR_DECL, name, sourcePos: pos });
   }
 
   _parseArrDecl() {
     const name = this._curTokenValue();
+    const pos = this._curTokenPos();
 
     this._consume(TokenType.ID);
     this._consume(TokenType.LBRACKET);
@@ -295,10 +310,11 @@ class Parser {
     this._consume(TokenType.NUM);
     this._consume(TokenType.RBRACKET);
 
-    return new Decl(ASTNodeType.ARR_DECL, name, size);
+    return new Decl({ type: ASTNodeType.ARR_DECL, name, size, sourcePos: pos });
   }
 
   _parseCall() {
+    const pos = this._curTokenPos();
     this._consume(TokenType.CALL);
     const args = [this._parseRef(ASTNodeType.PROC_REF)];
 
@@ -306,10 +322,11 @@ class Parser {
       args.push(this._parseRef(ASTNodeType.VAR_REF));
     }
 
-    return new Stmt(ASTNodeType.CALL, args);
+    return new Stmt({ type: ASTNodeType.CALL, args, sourcePos: pos });
   }
 
   _parseMsg() {
+    const pos = this._curTokenPos();
     this._consume(TokenType.MSG);
     const args = [];
 
@@ -321,13 +338,14 @@ class Parser {
     }
 
     if (!args.length) {
-      this._throwUnexpectedToken();
+      this._unexpectedToken();
     }
 
-    return new Stmt(ASTNodeType.MSG, args);
+    return new Stmt({ type: ASTNodeType.MSG, args, sourcePos: pos });
   }
 
   _parseProcDef() {
+    const pos = this._curTokenPos();
     this._consume(TokenType.PROC);
     const name = this._curTokenValue();
     this._consume(TokenType.ID);
@@ -337,7 +355,7 @@ class Parser {
       const param = this._curTokenValue().toLowerCase();
 
       if (params.has(param)) {
-        throw new Error(`Duplicate param '${param}' in procedure '${name}'`);
+        this._error(Error.DUPLICATE_PARAM(param, name));
       }
 
       params.add(param);
@@ -346,7 +364,7 @@ class Parser {
 
     const body = this._parseNestedStatements();
 
-    return new ProcDef(name, [...params], body);
+    return new ProcDef({ name, params: [...params], body, sourcePos: pos });
   }
 
   _parseArgs(types) {
@@ -357,7 +375,7 @@ class Parser {
     const tokenType = unionType.find((type) => this._compareTokenType(type));
 
     if (!tokenType) {
-      this._throwUnexpectedToken();
+      this._unexpectedToken();
     }
 
     switch (tokenType) {
@@ -380,7 +398,7 @@ class Parser {
         return this._parsePrimitive(ASTNodeType.STR);
 
       default:
-        this._throwUnexpectedToken();
+        this._unexpectedToken();
     }
   }
 
@@ -398,21 +416,23 @@ class Parser {
 
   _parseRef(nodeType) {
     const name = this._curTokenValue();
+    const pos = this._curTokenPos();
     this._consume(TokenType.ID);
 
-    return new Ref(nodeType, name);
+    return new Ref({ type: nodeType, name, sourcePos: pos });
   }
 
   _parsePrimitive(nodeType) {
     const value = this._curTokenValue();
+    const pos = this._curTokenPos();
     this._getNextToken();
 
-    return new Prim(nodeType, value);
+    return new Prim({ type: nodeType, value, sourcePos: pos });
   }
 
   _consume(type) {
     if (type !== this._curTokenType()) {
-      this._throwUnexpectedToken();
+      this._unexpectedToken();
     }
 
     this._getNextToken();
@@ -430,8 +450,16 @@ class Parser {
     return this._lexer.getCurToken().getValue();
   }
 
-  _throwUnexpectedToken() {
-    throw new Error(`Unexpected token '${this._curTokenType()}'`);
+  _curTokenPos() {
+    return this._lexer.getCurToken().getSourcePos();
+  }
+
+  _unexpectedToken() {
+    this._error(Error.UNEXPECTED_TOKEN(this._lexer.getCurToken()));
+  }
+
+  _error(msg, pos = this._curTokenPos()) {
+    this._errNotifier.notify(msg, pos);
   }
 }
 

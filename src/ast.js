@@ -9,21 +9,26 @@ const ASTNodeType = createEnum([
 ]);
 
 class ASTNode {
-  constructor(type) {
+  constructor({ type, sourcePos = { line: -1, column: -1 } }) {
     this._type = type;
+    this._sourcePos = { ...sourcePos };
   }
 
   type() {
     return this._type;
   }
 
+  sourcePos() {
+    return { ...this._sourcePos };
+  }
+
   accept(visitor) {}
 }
 
 class Stmt extends ASTNode {
-  constructor(type, args = []) {
-    super(type);
-    this._args = args.slice();
+  constructor(opt) {
+    super(opt);
+    this._args = (opt.args || []).slice();
   }
 
   args() {
@@ -36,9 +41,9 @@ class Stmt extends ASTNode {
 }
 
 class CompStmt extends Stmt {
-  constructor(type, args, body) {
-    super(type, args);
-    this._body = body;
+  constructor(opt) {
+    super(opt);
+    this._body = opt.body;
   }
 
   body() {
@@ -51,9 +56,9 @@ class CompStmt extends Stmt {
 }
 
 class Prim extends ASTNode {
-  constructor(type, value) {
-    super(type);
-    this._value = value;
+  constructor(opt) {
+    super(opt);
+    this._value = opt.value;
   }
 
   value() {
@@ -66,9 +71,9 @@ class Prim extends ASTNode {
 }
 
 class Ref extends ASTNode {
-  constructor(type, name) {
-    super(type);
-    this._name = name;
+  constructor(opt) {
+    super(opt);
+    this._name = opt.name;
   }
 
   name() {
@@ -81,10 +86,10 @@ class Ref extends ASTNode {
 }
 
 class Decl extends ASTNode {
-  constructor(type, name, size = 1) {
-    super(type);
-    this._name = name;
-    this._size = size;
+  constructor(opt) {
+    super(opt);
+    this._name = opt.name;
+    this._size = opt.size || 1;
   }
 
   name() {
@@ -101,9 +106,9 @@ class Decl extends ASTNode {
 }
 
 class StmtList extends ASTNode {
-  constructor(children) {
-    super(ASTNodeType.STMT_LIST);
-    this._children = children.slice();
+  constructor(opt) {
+    super({ ...opt, type: ASTNodeType.STMT_LIST });
+    this._children = opt.children.slice();
   }
 
   children() {
@@ -116,10 +121,10 @@ class StmtList extends ASTNode {
 }
 
 class ProcDef extends CompStmt {
-  constructor(name, params, body) {
-    super(ASTNodeType.PROC_DEF, [], body);
-    this._name = name;
-    this._params = params.slice();
+  constructor(opt) {
+    super({ ...opt, type: ASTNodeType.PROC_DEF });
+    this._name = opt.name;
+    this._params = opt.params.slice();
   }
 
   name() {

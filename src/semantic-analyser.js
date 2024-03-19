@@ -3,13 +3,14 @@ const { SymbolTable } = require('./symbol-table');
 const { SymbolType, Sym } = require('./symbol');
 
 class SemanticAnalyser extends NodeVisitor {
-  constructor() {
+  constructor(errNotifier) {
     super();
     this._symTable = new SymbolTable();
+    this._errNotifier = errNotifier;
   }
 
   visit(ast) {
-    new ProcCollector(this._symTable).visit(ast);
+    new ProcCollector(this._symTable, this._errNotifier).visit(ast);
     super.visit(ast);
     new RecursionChecker().visit(ast);
   }
@@ -27,7 +28,10 @@ class SemanticAnalyser extends NodeVisitor {
       const formalParams = def.params();
 
       if (actualParams.length !== formalParams.length) {
-        throw new Error(`Wrong number of arguments for '${proc.name()}'`);
+        this._errNotifier.notify(
+          `Wrong number of arguments for '${proc.name()}'`,
+          node.sourcePos()
+        );
       }
     }
   }
@@ -44,25 +48,37 @@ class SemanticAnalyser extends NodeVisitor {
     const sym = this._symTable.get(node.name());
 
     if (null == sym) {
-      throw new Error(`'${node.name()}' is not defined`);
+      this._errNotifier.notify(
+        `'${node.name()}' is not defined`,
+        node.sourcePos()
+      );
     }
 
     switch (node.type()) {
       case ASTNodeType.VAR_REF:
         if (SymbolType.VAR !== sym.type()) {
-          throw new Error(`'${node.name()}' is not a variable`);
+          this._errNotifier.notify(
+            `'${node.name()}' is not a variable`,
+            node.sourcePos()
+          );
         }
         break;
 
       case ASTNodeType.ARR_REF:
         if (SymbolType.ARR !== sym.type()) {
-          throw new Error(`'${node.name()}' is not an array`);
+          this._errNotifier.notify(
+            `'${node.name()}' is not an array`,
+            node.sourcePos()
+          );
         }
         break;
 
       case ASTNodeType.PROC_REF:
         if (SymbolType.PROC !== sym.type()) {
-          throw new Error(`'${node.name()}' is not a procedure`);
+          this._errNotifier.notify(
+            `'${node.name()}' is not a procedure`,
+            node.sourcePos()
+          );
         }
         break;
     }
@@ -70,7 +86,10 @@ class SemanticAnalyser extends NodeVisitor {
 
   visitDecl(node) {
     if (this._symTable.has(node.name())) {
-      throw new Error(`'${node.name()}' is already declared`);
+      this._errNotifier.notify(
+        `'${node.name()}' is already declared`,
+        node.sourcePos()
+      );
     }
 
     const symType =
@@ -91,14 +110,18 @@ class SemanticAnalyser extends NodeVisitor {
 }
 
 class ProcCollector extends NodeVisitor {
-  constructor(symTable) {
+  constructor(symTable, errNotifier) {
     super();
     this._symTable = symTable;
+    this._errNotifier = errNotifier;
   }
 
   visitProcDef(node) {
     if (this._symTable.has(node.name())) {
-      throw new Error(`'${node.name()}' is already declared`);
+      this._errNotifier.notify(
+        `'${node.name()}' is already declared`,
+        node.sourcePos()
+      );
     }
 
     this._symTable.add(new Sym(node.name(), SymbolType.PROC, node));
@@ -155,7 +178,7 @@ class RecursionChecker extends NodeVisitor {
   _check(procNames, chain) {
     for (const proc of procNames) {
       if (chain.has(proc)) {
-        this._throwError(chain);
+        this._error(chain);
       }
 
       if (this._callTable.has(proc)) {
@@ -164,10 +187,10 @@ class RecursionChecker extends NodeVisitor {
     }
   }
 
-  _throwError(chain) {
+  _error(chain) {
     const _chain = [...chain];
     _chain.push(_chain[0]);
-    throw new Error(`Recursive call: ${_chain.join(' -> ')}`);
+    throw new Error(`Recursive call detected:\n${_chain.join(' -> ')}`);
   }
 }
 

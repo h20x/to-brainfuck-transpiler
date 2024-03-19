@@ -8,10 +8,10 @@ const RESERVED_WORDS = new Set([
 ]);
 
 class Lexer {
-  constructor(program) {
-    this._program = program;
-    this._pos = 0;
+  constructor(source, errNotifier) {
+    this._source = source;
     this._curToken = null;
+    this._errNotifier = errNotifier;
   }
 
   getNextToken() {
@@ -19,9 +19,9 @@ class Lexer {
   }
 
   peekNextToken() {
-    const pos = this._pos;
+    const pos = this._source.getPos();
     const token = this._nextToken();
-    this._pos = pos;
+    this._source.setPos(pos);
 
     return token;
   }
@@ -33,76 +33,66 @@ class Lexer {
   _nextToken() {
     this._skipComments();
 
-    if (this._isEOF()) {
-      return new Token(TokenType.EOF, null);
+    const tokenPos = this._source.getPos();
+    let tokenType = null;
+    let tokenValue = null;
+
+    // prettier-ignore
+    if (this._source.EOF()) {
+      tokenType = TokenType.EOF;
     }
 
-    if (this._isNum()) {
-      return new Token(TokenType.NUM, Number(this._readNum()));
+    else if (this._isNum()) {
+      tokenType = TokenType.NUM;
+      tokenValue = Number(this._readNum());
     }
 
-    if (this._isSym("'")) {
-      return new Token(TokenType.CHAR, this._readChar());
+    else if (this._isSym("'")) {
+      tokenType = TokenType.CHAR;
+      tokenValue = this._readChar();
     }
 
-    if (this._isSym('"')) {
-      return new Token(TokenType.STR, this._readString());
+    else if (this._isSym('"')) {
+      tokenType = TokenType.STR;
+      tokenValue = this._readString();
     }
 
-    if (this._isSym('[')) {
-      return new Token(TokenType.LBRACKET, this._readSym());
+    else if (this._isSym('[')) {
+      tokenType = TokenType.LBRACKET;
+      tokenValue = this._readSym();
     }
 
-    if (this._isSym(']')) {
-      return new Token(TokenType.RBRACKET, this._readSym());
+    else if (this._isSym(']')) {
+      tokenType = TokenType.RBRACKET;
+      tokenValue = this._readSym();
     }
 
-    if (this._isLetter$_()) {
-      const word = this._readWord();
-      const tokenType = RESERVED_WORDS.has(word.toLowerCase())
-        ? TokenType[word.toUpperCase()]
+    else if (this._isLetter$_()) {
+      tokenValue = this._readWord();
+      tokenType = RESERVED_WORDS.has(tokenValue.toLowerCase())
+        ? TokenType[tokenValue.toUpperCase()]
         : TokenType.ID;
-
-      return new Token(tokenType, word);
     }
 
-    this._throwError();
-  }
-
-  _advance(n = 1) {
-    for (let i = 0; i < n; i++) {
-      this._pos++;
-    }
-  }
-
-  _peek(len = 1) {
-    let str = '';
-
-    for (let i = this._pos; i < this._pos + len; i++) {
-      str += i < this._program.length ? this._program[i] : '';
+    else {
+      this._errNotifier.notify('Unexpected character', this._source.getPos());
     }
 
-    return str;
+    return new Token(tokenType, tokenValue, tokenPos);
   }
 
   _skipComments() {
     this._skipWS();
 
     while (this._isComment()) {
-      this._skipLine();
+      this._source.skipLine();
       this._skipWS();
     }
   }
 
   _skipWS() {
     while (this._isWS()) {
-      this._advance();
-    }
-  }
-
-  _skipLine() {
-    while (!this._isEOF() && !this._isEOL()) {
-      this._advance();
+      this._source.advance();
     }
   }
 
@@ -127,90 +117,82 @@ class Lexer {
   }
 
   _readChar() {
-    let str = this._peek(4);
+    let str = this._source.peek(4);
 
     if (/'(\\'|\\"|\\n|\\r|\\t)'/.test(str)) {
-      this._advance(4);
+      this._source.advance(4);
 
       return str[1] + str[2];
     }
 
-    str = this._peek(3);
+    str = this._source.peek(3);
 
     if (/'[^'"]'/.test(str)) {
-      this._advance(3);
+      this._source.advance(3);
 
       return str[1];
     }
 
-    this._throwError();
+    this._errNotifier.notify('Invalid CHAR', this._source.getPos());
   }
 
   _readString() {
-    this._advance();
+    const pos = this._source.getPos();
 
-    const isClosingQuote = () => {
-      return this._isSym('"') && '\\' !== prevChar;
+    this._source.advance();
+
+    const closingQuote = () => {
+      return this._isSym('"') && '\\' !== str[str.length - 1];
+    };
+
+    const endOfString = () => {
+      return this._source.EOL() || this._source.EOF() || closingQuote();
     };
 
     let str = '';
-    let prevChar = '';
 
-    while (!this._isEOL() && !this._isEOF() && !isClosingQuote()) {
-      prevChar = this._readSym();
-      str += prevChar;
+    while (!endOfString()) {
+      str += this._readSym();
     }
 
     if (!this._isSym('"')) {
-      this._throwError();
+      this._errNotifier.notify('Unclosed string', pos);
     }
 
-    this._advance();
+    this._source.advance();
 
     return str;
   }
 
   _readSym() {
-    const sym = this._peek();
-    this._advance();
+    const sym = this._source.peek();
+    this._source.advance();
 
     return sym;
   }
 
-  _isEOF() {
-    return this._pos >= this._program.length;
-  }
-
-  _isEOL() {
-    return '\n' === this._peek();
-  }
-
   _isComment() {
-    return /^rem|^#|\/\/|--/i.test(this._peek(3));
+    return /^rem|^#|\/\/|--/i.test(this._source.peek(3));
   }
 
   _isWS() {
-    return /\s/.test(this._peek());
+    return /\s/.test(this._source.peek());
   }
 
   _isLetter$_() {
-    return /[a-zA-Z]|\$|_/.test(this._peek());
+    return /[a-zA-Z]|\$|_/.test(this._source.peek());
   }
 
   _isDigit() {
-    return /\d/.test(this._peek());
+    return /\d/.test(this._source.peek());
   }
 
   _isNum() {
-    return /^-?\d/.test(this._peek(2));
+    return /^-?\d/.test(this._source.peek(2));
   }
 
   _isSym(sym) {
-    return sym === this._peek();
-  }
-
-  _throwError() {
-    throw new Error('Lexing error');
+    return sym === this._source.peek();
   }
 }
 

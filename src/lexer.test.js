@@ -1,10 +1,12 @@
 const { Lexer } = require('./lexer');
+const { Source } = require('./source');
+const { ErrorNotifier } = require('./error-notifier');
 const { TokenType: _ } = require('./token');
 
 describe('Lexer', () => {
   test('should handle empty string', () => {
     ['', ' \t\n '].forEach((str) => {
-      const lexer = new Lexer(str);
+      const lexer = createLexer(str);
       expect(lexer.getNextToken().getType()).toBe(_.EOF);
     });
   });
@@ -149,7 +151,7 @@ describe('Lexer', () => {
       ],
     ],
   ])('should recognize: %s', (input, expected) => {
-    const lexer = new Lexer(input);
+    const lexer = createLexer(input);
 
     expected.forEach(([type, value]) => {
       const token = lexer.getNextToken();
@@ -160,13 +162,13 @@ describe('Lexer', () => {
   });
 
   test.each([`'0`, `"abc`])('should throw: %s', (input) => {
-    const lexer = new Lexer(input);
+    const lexer = createLexer(input);
 
     expect(() => lexer.getNextToken()).toThrow();
   });
 
   test('peekNextToken()', () => {
-    const lexer = new Lexer('x 0');
+    const lexer = createLexer('x 0');
 
     lexer.getNextToken();
     expect(lexer.getCurToken().getType()).toBe(_.ID);
@@ -179,4 +181,25 @@ describe('Lexer', () => {
 
     expect(lexer.peekNextToken().getType()).toBe(_.EOF);
   });
+
+  test('token source position', () => {
+    const lexer = createLexer(`a ab 123\n'a' "abc"`);
+
+    [
+      { line: 0, column: 0 },
+      { line: 0, column: 2 },
+      { line: 0, column: 5 },
+      { line: 1, column: 0 },
+      { line: 1, column: 4 },
+    ].forEach((pos) => {
+      expect(lexer.getNextToken().getSourcePos()).toMatchObject(pos);
+    });
+  });
 });
+
+function createLexer(input) {
+  const source = new Source(input);
+  const errNotifier = new ErrorNotifier(source);
+
+  return new Lexer(source, errNotifier);
+}

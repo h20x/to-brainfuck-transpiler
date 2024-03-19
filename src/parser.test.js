@@ -1,5 +1,7 @@
 const { Lexer } = require('./lexer');
 const { Parser } = require('./parser');
+const { Source } = require('./source');
+const { ErrorNotifier } = require('./error-notifier');
 const { astToString } = require('./ast-stringifier');
 
 describe('Parser', () => {
@@ -158,7 +160,7 @@ describe('Parser', () => {
         }`,
     ],
   ])('should parse: %s', (program, expected) => {
-    const parser = new Parser(new Lexer(program));
+    const parser = createParser(program);
     const result = astToString(parser.parse());
 
     expected = expected
@@ -171,21 +173,21 @@ describe('Parser', () => {
   });
 
   test.each([
-    ['var Q[ 20 S', `Unexpected token 'ID'`],
-    ['whatever a b c', `Unexpected token 'ID'`],
-    ['add 20', `Unexpected token 'EOF'`],
-    ['div 20 20 c d', `Unexpected token 'ID'`],
-    ['set 20 20', `Unexpected token 'NUM'`],
-    ['inc "a" 5', `Unexpected token 'STR'`],
+    ['var Q[ 20 S', `Unexpected token: Token(type: ID, value: S)`],
+    ['whatever a b c', `Unexpected token: Token(type: ID, value: whatever)`],
+    ['add 20', `Unexpected token: Token(type: EOF, value: null)`],
+    ['div 20 20 c d', `Unexpected token: Token(type: ID, value: d)`],
+    ['set 20 20', `Unexpected token: Token(type: NUM, value: 20)`],
+    ['inc "a" 5', `Unexpected token: Token(type: STR, value: a)`],
     [
       `var x
        end`,
-      `Unexpected token 'END'`,
+      `Unexpected token: Token(type: END, value: end)`,
     ],
     [
       `var a
        ifeq a 0`,
-      `Unexpected token 'EOF'`,
+      `Unexpected token: Token(type: EOF, value: null)`,
     ],
     [
       `proc a Q q
@@ -206,6 +208,14 @@ describe('Parser', () => {
       `Nested variable declaration`,
     ],
   ])('should throw: %s', (program, errMsg) => {
-    expect(() => new Parser(new Lexer(program)).parse()).toThrow(errMsg);
+    expect(() => createParser(program).parse()).toThrow(errMsg);
   });
 });
+
+function createParser(program) {
+  const source = new Source(program);
+  const errNotifier = new ErrorNotifier(source);
+  const lexer = new Lexer(source, errNotifier);
+
+  return new Parser(lexer, errNotifier);
+}

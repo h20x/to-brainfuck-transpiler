@@ -1,6 +1,8 @@
 const { SemanticAnalyser } = require('./semantic-analyser');
 const { Parser } = require('./parser');
 const { Lexer } = require('./lexer');
+const { Source } = require('./source');
+const { ErrorNotifier } = require('./error-notifier');
 
 describe('SemanticAnalyser', () => {
   test.each([
@@ -67,13 +69,15 @@ describe('SemanticAnalyser', () => {
        proc wrap x
          call say x
        end`,
-      `Recursive call: say -> wrap -> say`,
+      `Recursive call detected:\nsay -> wrap -> say`,
     ],
   ])('should throw: %s', (program, errMsg) => {
-    const parser = new Parser(new Lexer(program));
-    const ast = parser.parse();
-    const analyser = new SemanticAnalyser();
+    const source = new Source(program);
+    const errNotifier = new ErrorNotifier(source);
+    const lexer = new Lexer(source, errNotifier);
+    const parser = new Parser(lexer, errNotifier);
+    const analyser = new SemanticAnalyser(errNotifier);
 
-    expect(() => analyser.visit(ast)).toThrow(errMsg);
+    expect(() => analyser.visit(parser.parse())).toThrow(errMsg);
   });
 });
