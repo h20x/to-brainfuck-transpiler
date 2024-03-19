@@ -37,45 +37,45 @@ class Lexer {
     let tokenType = null;
     let tokenValue = null;
 
-    // prettier-ignore
-    if (this._source.EOF()) {
-      tokenType = TokenType.EOF;
-    }
+    switch (true) {
+      case this._source.EOF():
+        tokenType = TokenType.EOF;
+        break;
 
-    else if (this._isNum()) {
-      tokenType = TokenType.NUM;
-      tokenValue = Number(this._readNum());
-    }
+      case this._isNum():
+        tokenType = TokenType.NUM;
+        tokenValue = Number(this._readNum());
+        break;
 
-    else if (this._isSym("'")) {
-      tokenType = TokenType.CHAR;
-      tokenValue = this._readChar();
-    }
+      case this._isChar("'"):
+        tokenType = TokenType.CHAR;
+        tokenValue = this._readCharLiteral();
+        break;
 
-    else if (this._isSym('"')) {
-      tokenType = TokenType.STR;
-      tokenValue = this._readString();
-    }
+      case this._isChar('"'):
+        tokenType = TokenType.STR;
+        tokenValue = this._readString();
+        break;
 
-    else if (this._isSym('[')) {
-      tokenType = TokenType.LBRACKET;
-      tokenValue = this._readSym();
-    }
+      case this._isChar('['):
+        tokenType = TokenType.LBRACKET;
+        tokenValue = this._readChar();
+        break;
 
-    else if (this._isSym(']')) {
-      tokenType = TokenType.RBRACKET;
-      tokenValue = this._readSym();
-    }
+      case this._isChar(']'):
+        tokenType = TokenType.RBRACKET;
+        tokenValue = this._readChar();
+        break;
 
-    else if (this._isLetter$_()) {
-      tokenValue = this._readWord();
-      tokenType = RESERVED_WORDS.has(tokenValue.toLowerCase())
-        ? TokenType[tokenValue.toUpperCase()]
-        : TokenType.ID;
-    }
+      case this._isLetter$_():
+        tokenValue = this._readWord();
+        tokenType = RESERVED_WORDS.has(tokenValue.toLowerCase())
+          ? TokenType[tokenValue.toUpperCase()]
+          : TokenType.ID;
+        break;
 
-    else {
-      this._errNotifier.notify('Unexpected character', this._source.getPos());
+      default:
+        this._error('Unexpected character');
     }
 
     return new Token(tokenType, tokenValue, tokenPos);
@@ -100,7 +100,7 @@ class Lexer {
     let word = '';
 
     while (this._isLetter$_() || this._isDigit()) {
-      word += this._readSym();
+      word += this._readChar();
     }
 
     return word;
@@ -110,13 +110,13 @@ class Lexer {
     let num = '';
 
     do {
-      num += this._readSym();
+      num += this._readChar();
     } while (this._isDigit());
 
     return num;
   }
 
-  _readChar() {
+  _readCharLiteral() {
     let str = this._source.peek(4);
 
     if (/'(\\'|\\"|\\n|\\r|\\t)'/.test(str)) {
@@ -133,7 +133,7 @@ class Lexer {
       return str[1];
     }
 
-    this._errNotifier.notify('Invalid CHAR', this._source.getPos());
+    this._error('Invalid CHAR');
   }
 
   _readString() {
@@ -142,7 +142,7 @@ class Lexer {
     this._source.advance();
 
     const closingQuote = () => {
-      return this._isSym('"') && '\\' !== str[str.length - 1];
+      return this._isChar('"') && '\\' !== str[str.length - 1];
     };
 
     const endOfString = () => {
@@ -152,11 +152,11 @@ class Lexer {
     let str = '';
 
     while (!endOfString()) {
-      str += this._readSym();
+      str += this._readChar();
     }
 
-    if (!this._isSym('"')) {
-      this._errNotifier.notify('Unclosed string', pos);
+    if (!this._isChar('"')) {
+      this._error('Unclosed string', pos);
     }
 
     this._source.advance();
@@ -164,11 +164,11 @@ class Lexer {
     return str;
   }
 
-  _readSym() {
-    const sym = this._source.peek();
+  _readChar() {
+    const ch = this._source.peek();
     this._source.advance();
 
-    return sym;
+    return ch;
   }
 
   _isComment() {
@@ -191,8 +191,12 @@ class Lexer {
     return /^-?\d/.test(this._source.peek(2));
   }
 
-  _isSym(sym) {
-    return sym === this._source.peek();
+  _isChar(ch) {
+    return ch === this._source.peek();
+  }
+
+  _error(msg, pos = this._source.getPos()) {
+    this._errNotifier.notify(msg, pos);
   }
 }
 

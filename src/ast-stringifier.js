@@ -65,8 +65,4 @@ class ASTStringifier extends NodeVisitor {
   }
 }
 
-function astToString(node) {
-  return new ASTStringifier(node).stringify();
-}
-
-module.exports = { astToString };
+module.exports = { ASTStringifier };

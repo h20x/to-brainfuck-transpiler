@@ -14,7 +14,7 @@ const Error = {
   NESTED_VAR: () => 'Nested variable declaration',
   NESTED_PROC: () => 'Nested procedure definition',
   UNEXPECTED_TOKEN: (token) =>
-    `Unexpected token: Token(type: ${token.getType()}, value: ${token.getValue()})`,
+    `Unexpected token: Token(type: ${token.type()}, value: ${token.value()})`,
   DUPLICATE_PARAM: (param, proc) =>
     `Duplicate param '${param}' in procedure '${proc}'`,
 };
@@ -276,7 +276,7 @@ class Parser {
     const args = [];
 
     while (TokenType.ID === this._curTokenType()) {
-      if (TokenType.LBRACKET === this._lexer.peekNextToken().getType()) {
+      if (TokenType.LBRACKET === this._lexer.peekNextToken().type()) {
         args.push(this._parseArrDecl());
       } else {
         args.push(this._parseVarDecl());
@@ -443,15 +443,15 @@ class Parser {
   }
 
   _curTokenType() {
-    return this._lexer.getCurToken().getType();
+    return this._lexer.getCurToken().type();
   }
 
   _curTokenValue() {
-    return this._lexer.getCurToken().getValue();
+    return this._lexer.getCurToken().value();
   }
 
   _curTokenPos() {
-    return this._lexer.getCurToken().getSourcePos();
+    return this._lexer.getCurToken().sourcePos();
   }
 
   _unexpectedToken() {

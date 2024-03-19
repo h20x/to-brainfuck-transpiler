@@ -15,15 +15,15 @@ class Token {
     this._sourcePos = { ...sourcePos };
   }
 
-  getType() {
+  type() {
     return this._type;
   }
 
-  getValue() {
+  value() {
     return this._value;
   }
 
-  getSourcePos() {
+  sourcePos() {
     return { ...this._sourcePos };
   }
 }

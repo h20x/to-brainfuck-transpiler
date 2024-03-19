@@ -2,7 +2,7 @@ const { Lexer } = require('./lexer');
 const { Parser } = require('./parser');
 const { Source } = require('./source');
 const { ErrorNotifier } = require('./error-notifier');
-const { astToString } = require('./ast-stringifier');
+const { ASTStringifier } = require('./ast-stringifier');
 
 describe('Parser', () => {
   test.each([
@@ -161,7 +161,7 @@ describe('Parser', () => {
     ],
   ])('should parse: %s', (program, expected) => {
     const parser = createParser(program);
-    const result = astToString(parser.parse());
+    const result = new ASTStringifier(parser.parse()).stringify();
 
     expected = expected
       .split('\n')

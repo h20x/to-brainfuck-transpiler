@@ -7,7 +7,7 @@ describe('Lexer', () => {
   test('should handle empty string', () => {
     ['', ' \t\n '].forEach((str) => {
       const lexer = createLexer(str);
-      expect(lexer.getNextToken().getType()).toBe(_.EOF);
+      expect(lexer.getNextToken().type()).toBe(_.EOF);
     });
   });
 
@@ -156,8 +156,8 @@ describe('Lexer', () => {
     expected.forEach(([type, value]) => {
       const token = lexer.getNextToken();
 
-      expect(token.getType()).toBe(type);
-      expect(token.getValue()).toBe(value);
+      expect(token.type()).toBe(type);
+      expect(token.value()).toBe(value);
     });
   });
 
@@ -171,15 +171,15 @@ describe('Lexer', () => {
     const lexer = createLexer('x 0');
 
     lexer.getNextToken();
-    expect(lexer.getCurToken().getType()).toBe(_.ID);
+    expect(lexer.getCurToken().type()).toBe(_.ID);
 
-    expect(lexer.peekNextToken().getType()).toBe(_.NUM);
-    expect(lexer.peekNextToken().getValue()).toBe(0);
+    expect(lexer.peekNextToken().type()).toBe(_.NUM);
+    expect(lexer.peekNextToken().value()).toBe(0);
 
     lexer.getNextToken();
-    expect(lexer.getCurToken().getType()).toBe(_.NUM);
+    expect(lexer.getCurToken().type()).toBe(_.NUM);
 
-    expect(lexer.peekNextToken().getType()).toBe(_.EOF);
+    expect(lexer.peekNextToken().type()).toBe(_.EOF);
   });
 
   test('token source position', () => {
@@ -192,7 +192,7 @@ describe('Lexer', () => {
       { line: 1, column: 0 },
       { line: 1, column: 4 },
     ].forEach((pos) => {
-      expect(lexer.getNextToken().getSourcePos()).toMatchObject(pos);
+      expect(lexer.getNextToken().sourcePos()).toMatchObject(pos);
     });
   });
 });
