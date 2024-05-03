@@ -172,7 +172,7 @@ class Lexer {
   }
 
   _isComment() {
-    return /^rem|^#|\/\/|--/i.test(this._source.peek(3));
+    return /^rem|^#|^\/\/|^--/i.test(this._source.peek(3));
   }
 
   _isWS() {
