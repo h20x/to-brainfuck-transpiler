@@ -10,7 +10,7 @@ describe('SemanticAnalyser', () => {
     [
       `var Q
        var Q[20]`,
-      `'Q' is already declared`,
+      `'q' is already declared`,
     ],
     [
       `proc a
@@ -22,17 +22,17 @@ describe('SemanticAnalyser', () => {
     [
       `var Q
        add Q Q S`,
-      `'S' is not defined`,
+      `'s' is not defined`,
     ],
     [
       `var A B[20]
        lset B B 20`,
-      `'B' is not a variable`,
+      `'b' is not a variable`,
     ],
     [
       `var A B[20]
        lset A 0 20`,
-      `'A' is not an array`,
+      `'a' is not an array`,
     ],
     [`call whatever`, `'whatever' is not defined`],
     [

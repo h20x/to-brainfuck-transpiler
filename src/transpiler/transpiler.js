@@ -20,7 +20,7 @@ class Transpiler {
       if (ASTNodeType.STMT_LIST === node.type()) {
         this._collectProcedures(node.children());
       } else if (ASTNodeType.PROC_DEF === node.type()) {
-        this._procedures.set(node.name().toLowerCase(), node);
+        this._procedures.set(node.name(), node);
       }
     }
   }
@@ -135,7 +135,7 @@ class Transpiler {
 
   _transpileCall(node) {
     const [name, ...actualParams] = node.args().map(this._val);
-    const proc = this._procedures.get(name.toLowerCase());
+    const proc = this._procedures.get(name);
     const formalParams = proc.params();
     const params = [];
 

@@ -68,8 +68,8 @@ class Lexer {
         break;
 
       case this._isLetter$_():
-        tokenValue = this._readWord();
-        tokenType = RESERVED_WORDS.has(tokenValue.toLowerCase())
+        tokenValue = this._readWord().toLowerCase();
+        tokenType = RESERVED_WORDS.has(tokenValue)
           ? TokenType[tokenValue.toUpperCase()]
           : TokenType.ID;
         break;

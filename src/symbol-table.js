@@ -9,8 +9,6 @@ class SymbolTable {
   }
 
   get(name) {
-    name = name.toLowerCase();
-
     if (this._table.has(name)) {
       return this._table.get(name);
     }

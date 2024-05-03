@@ -5,16 +5,14 @@ class VarTable {
   }
 
   add(rec) {
-    this._vars.set(rec.name.toLowerCase(), rec);
+    this._vars.set(rec.name, rec);
   }
 
   addAlias(name, alias) {
-    this._vars.set(alias.toLowerCase(), this.get(name));
+    this._vars.set(alias, this.get(name));
   }
 
   get(name) {
-    name = name.toLowerCase();
-
     if (!this._vars.has(name)) {
       return this._parent && this._parent.get(name);
     }

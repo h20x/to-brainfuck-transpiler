@@ -17,23 +17,23 @@ describe('Lexer', () => {
       `var SET Inc dEc ADD sub MuL divMOD div mod CMp A2b b2A
        LSET lget ifeq ifneq wneQ PRoc end cAll read MSG`,
       [
-        [_.VAR, 'var'], [_.SET, 'SET'], [_.INC, 'Inc'], [_.DEC, 'dEc'],
-        [_.ADD, 'ADD'], [_.SUB, 'sub'], [_.MUL, 'MuL'], [_.DIVMOD, 'divMOD'],
-        [_.DIV, 'div'], [_.MOD, 'mod'], [_.CMP, 'CMp'], [_.A2B, 'A2b'],
-        [_.B2A, 'b2A'], [_.LSET, 'LSET'], [_.LGET, 'lget'], [_.IFEQ, 'ifeq'],
-        [_.IFNEQ, 'ifneq'], [_.WNEQ, 'wneQ'], [_.PROC, 'PRoc'], [_.END, 'end'],
-        [_.CALL, 'cAll'], [_.READ, 'read'], [_.MSG, 'MSG'],
+        [_.VAR, 'var'], [_.SET, 'set'], [_.INC, 'inc'], [_.DEC, 'dec'],
+        [_.ADD, 'add'], [_.SUB, 'sub'], [_.MUL, 'mul'], [_.DIVMOD, 'divmod'],
+        [_.DIV, 'div'], [_.MOD, 'mod'], [_.CMP, 'cmp'], [_.A2B, 'a2b'],
+        [_.B2A, 'b2a'], [_.LSET, 'lset'], [_.LGET, 'lget'], [_.IFEQ, 'ifeq'],
+        [_.IFNEQ, 'ifneq'], [_.WNEQ, 'wneq'], [_.PROC, 'proc'], [_.END, 'end'],
+        [_.CALL, 'call'], [_.READ, 'read'], [_.MSG, 'msg'],
         [_.EOF, null]
       ]
     ],
     [
       'A x $toString __proto__ PbZ9l_m4S$aTW8jy9eHsKxBTp9p3h',
       [
-        [_.ID, 'A'],
+        [_.ID, 'a'],
         [_.ID, 'x'],
-        [_.ID, '$toString'],
+        [_.ID, '$tostring'],
         [_.ID, '__proto__'],
-        [_.ID, 'PbZ9l_m4S$aTW8jy9eHsKxBTp9p3h'],
+        [_.ID, 'pbz9l_m4s$atw8jy9ehskxbtp9p3h'],
         [_.EOF, null],
       ],
     ],
@@ -134,25 +134,25 @@ describe('Lexer', () => {
        end`,
       // prettier-ignore
       [
-        [_.VAR, 'var'], [_.ID, 'F'], [_.ID, 'L'], [_.LBRACKET, '['], [_.NUM, 5], [_.RBRACKET, ']'], [_.ID, 'X'],
-        [_.VAR, 'var'], [_.ID, 'A'], [_.ID, 'B'], [_.ID, 'T'],
-        [_.SET, 'set'], [_.ID, 'A'], [_.CHAR, 'U'],
-        [_.SET, 'set'], [_.ID, 'F'], [_.NUM, -1],
+        [_.VAR, 'var'], [_.ID, 'f'], [_.ID, 'l'], [_.LBRACKET, '['], [_.NUM, 5], [_.RBRACKET, ']'], [_.ID, 'x'],
+        [_.VAR, 'var'], [_.ID, 'a'], [_.ID, 'b'], [_.ID, 't'],
+        [_.SET, 'set'], [_.ID, 'a'], [_.CHAR, 'U'],
+        [_.SET, 'set'], [_.ID, 'f'], [_.NUM, -1],
 
-        [_.MSG, 'msg'], [_.STR, 'Outer Before : '], [_.ID, 'A'], [_.ID, 'B'], [_.STR, '\\n'],
-        [_.CALL, 'call'], [_.ID, 'swap'], [_.ID, 'B'], [_.ID, 'A'],
+        [_.MSG, 'msg'], [_.STR, 'Outer Before : '], [_.ID, 'a'], [_.ID, 'b'], [_.STR, '\\n'],
+        [_.CALL, 'call'], [_.ID, 'swap'], [_.ID, 'b'], [_.ID, 'a'],
 
         [_.PROC, 'proc'], [_.ID, 'swap'], [_.ID, 'x'], [_.ID, 'y'],
-          [_.SET, 'set'], [_.ID, 'T'], [_.ID, 'x'],
-          [_.CALL, 'call'], [_.ID, 'say'], [_.ID, 'T'],
+          [_.SET, 'set'], [_.ID, 't'], [_.ID, 'x'],
+          [_.CALL, 'call'], [_.ID, 'say'], [_.ID, 't'],
         [_.END, 'end'],
 
-        [_.WNEQ, 'wneq'], [_.ID, 'F'], [_.NUM, 0],
-          [_.IFEQ, 'ifeq'], [_.ID, 'F'], [_.NUM, 10],
-            [_.SET, 'set'], [_.ID, 'F'], [_.NUM, 5],
+        [_.WNEQ, 'wneq'], [_.ID, 'f'], [_.NUM, 0],
+          [_.IFEQ, 'ifeq'], [_.ID, 'f'], [_.NUM, 10],
+            [_.SET, 'set'], [_.ID, 'f'], [_.NUM, 5],
           [_.END, 'end'],
-          [_.IFNEQ, 'ifneq'], [_.ID, 'X'], [_.NUM, 18],
-            [_.MSG, 'msg'], [_.ID, 'F'], [_.ID, 'X'],
+          [_.IFNEQ, 'ifneq'], [_.ID, 'x'], [_.NUM, 18],
+            [_.MSG, 'msg'], [_.ID, 'f'], [_.ID, 'x'],
           [_.END, 'end'],
         [_.END, 'end'],
 

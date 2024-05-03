@@ -352,7 +352,7 @@ class Parser {
     const params = new Set();
 
     while (TokenType.ID === this._curTokenType()) {
-      const param = this._curTokenValue().toLowerCase();
+      const param = this._curTokenValue();
 
       if (params.has(param)) {
         this._error(Error.DUPLICATE_PARAM(param, name));

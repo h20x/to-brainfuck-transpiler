@@ -4,7 +4,7 @@ const SymbolType = createEnum(['VAR', 'ARR', 'PROC']);
 
 class Sym {
   constructor(name, type, astNode = null) {
-    this._name = name.toLowerCase();
+    this._name = name;
     this._type = type;
     this._astNode = astNode;
   }

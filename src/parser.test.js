@@ -39,19 +39,19 @@ describe('Parser', () => {
       `ifeq F 10
         set F 5
        end`,
-      `{ IFEQ VAR_REF 'F' NUM '10' { SET VAR_REF 'F' NUM '5' } }`,
+      `{ IFEQ VAR_REF 'f' NUM '10' { SET VAR_REF 'f' NUM '5' } }`,
     ],
     [
       `ifneq X 50
          msg ";-)"
        end`,
-      `{ IFNEQ VAR_REF 'X' NUM '50' { MSG STR ';-)' } }`,
+      `{ IFNEQ VAR_REF 'x' NUM '50' { MSG STR ';-)' } }`,
     ],
     [
       `wneq F 0
         dec F 1
        end`,
-      `{ WNEQ VAR_REF 'F' NUM '0' { DEC VAR_REF 'F' NUM '1' } }`,
+      `{ WNEQ VAR_REF 'f' NUM '0' { DEC VAR_REF 'f' NUM '1' } }`,
     ],
     [
       `wneq F 0
@@ -61,9 +61,9 @@ describe('Parser', () => {
          end
        end`,
       `{
-         WNEQ VAR_REF 'F' NUM '0' {
-           IFEQ VAR_REF 'F' NUM '1' {
-             IFNEQ VAR_REF 'X' NUM '50' {  }
+         WNEQ VAR_REF 'f' NUM '0' {
+           IFEQ VAR_REF 'f' NUM '1' {
+             IFNEQ VAR_REF 'x' NUM '50' {  }
            }
          }
        }`,
@@ -117,40 +117,40 @@ describe('Parser', () => {
          msg "It is " x " now\\n"
        end`,
       `{
-          DECL_LIST VAR_DECL 'A' VAR_DECL 'B' VAR_DECL 'T' VAR_DECL 'F' ARR_DECL 'L[5]' VAR_DECL 'X'
-          SET VAR_REF 'A' CHAR 'U'
-          SET VAR_REF 'B' CHAR 'V'
+          DECL_LIST VAR_DECL 'a' VAR_DECL 'b' VAR_DECL 't' VAR_DECL 'f' ARR_DECL 'l[5]' VAR_DECL 'x'
+          SET VAR_REF 'a' CHAR 'U'
+          SET VAR_REF 'b' CHAR 'V'
 
-          MSG STR 'Outer Before : ' VAR_REF 'A' VAR_REF 'B' STR '\\n'
-          CALL PROC_REF 'swap' VAR_REF 'B' VAR_REF 'A'
-          MSG STR 'Outer After : ' VAR_REF 'A' VAR_REF 'B' STR '\\n'
+          MSG STR 'Outer Before : ' VAR_REF 'a' VAR_REF 'b' STR '\\n'
+          CALL PROC_REF 'swap' VAR_REF 'b' VAR_REF 'a'
+          MSG STR 'Outer After : ' VAR_REF 'a' VAR_REF 'b' STR '\\n'
 
-          SET VAR_REF 'F' NUM '10'
-          WNEQ VAR_REF 'F' NUM '0' {
-            IFEQ VAR_REF 'F' NUM '10' {
-              SET VAR_REF 'F' NUM '5'
+          SET VAR_REF 'f' NUM '10'
+          WNEQ VAR_REF 'f' NUM '0' {
+            IFEQ VAR_REF 'f' NUM '10' {
+              SET VAR_REF 'f' NUM '5'
             }
 
-            DEC VAR_REF 'F' NUM '1'
-            LGET ARR_REF 'L' VAR_REF 'F' VAR_REF 'X'
+            DEC VAR_REF 'f' NUM '1'
+            LGET ARR_REF 'l' VAR_REF 'f' VAR_REF 'x'
 
-            IFNEQ VAR_REF 'X' NUM '18' {
-              MSG VAR_REF 'F' VAR_REF 'X'
+            IFNEQ VAR_REF 'x' NUM '18' {
+              MSG VAR_REF 'f' VAR_REF 'x'
             }
           }
 
-          IFEQ VAR_REF 'F' NUM '0' {
-            IFNEQ VAR_REF 'X' NUM '50' {
+          IFEQ VAR_REF 'f' NUM '0' {
+            IFNEQ VAR_REF 'x' NUM '50' {
               MSG STR ';-)'
             }
           }
 
           PROC_DEF 'swap' ('x' 'y') {
             MSG STR 'Inner Before : ' VAR_REF 'x' VAR_REF 'y' STR '\\n'
-            SET VAR_REF 'T' VAR_REF 'x'
-            CALL PROC_REF 'say' VAR_REF 'T'
+            SET VAR_REF 't' VAR_REF 'x'
+            CALL PROC_REF 'say' VAR_REF 't'
             SET VAR_REF 'x' VAR_REF 'y'
-            SET VAR_REF 'y' VAR_REF 'T'
+            SET VAR_REF 'y' VAR_REF 't'
             MSG STR 'Inner After : ' VAR_REF 'x' VAR_REF 'y' STR '\\n'
           }
 
@@ -173,7 +173,7 @@ describe('Parser', () => {
   });
 
   test.each([
-    ['var Q[ 20 S', `Unexpected token: Token(type: ID, value: S)`],
+    ['var Q[ 20 S', `Unexpected token: Token(type: ID, value: s)`],
     ['whatever a b c', `Unexpected token: Token(type: ID, value: whatever)`],
     ['add 20', `Unexpected token: Token(type: EOF, value: null)`],
     ['div 20 20 c d', `Unexpected token: Token(type: ID, value: d)`],
