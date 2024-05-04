@@ -1,8 +1,8 @@
-const { ErrorNotifier } = require('./error-notifier');
+const { ParsingError } = require('./parsing-error');
 const { Source } = require('./source');
 
-describe('ErrorNotifier', () => {
-  test('notify()', () => {
+describe('ParsingError', () => {
+  test('should have correct error message', () => {
     const program = [
       'var width height tmp',
       'set width 10',
@@ -16,9 +16,12 @@ describe('ErrorNotifier', () => {
       'end',
     ].join('\n');
 
-    const notifier = new ErrorNotifier(new Source(program));
+    const src = new Source(program);
+    const errMsg = (msg, ln, col) => {
+      return new ParsingError({ msg, ln, col, src }).message;
+    };
 
-    expect(() => notifier.notify('Error 1', { line: 0, column: 4 })).toThrow(
+    expect(errMsg('Error 1', 0, 4)).toBe(
       [
         '1 | var width height tmp',
         '  |     ^',
@@ -29,7 +32,7 @@ describe('ErrorNotifier', () => {
       ].join('\n')
     );
 
-    expect(() => notifier.notify('Error 2', { line: 8, column: 8 })).toThrow(
+    expect(errMsg('Error 2', 8, 8)).toBe(
       [
         ' 8 |   set x y',
         ' 9 |   set y tmp',
@@ -40,7 +43,7 @@ describe('ErrorNotifier', () => {
       ].join('\n')
     );
 
-    expect(() => notifier.notify('Error 3', { line: 9, column: 0 })).toThrow(
+    expect(errMsg('Error 3', 9, 0)).toBe(
       // prettier-ignore
       [
         ' 9 |   set y tmp',
@@ -51,7 +54,7 @@ describe('ErrorNotifier', () => {
       ].join('\n')
     );
 
-    expect(() => notifier.notify('Error 4', { line: 1, column: 4 })).toThrow(
+    expect(errMsg('Error 4', 1, 4)).toBe(
       [
         '1 | var width height tmp',
         '2 | set width 10',

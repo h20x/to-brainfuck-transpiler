@@ -8,8 +8,9 @@ const {
   StmtList,
   ProcDef,
 } = require('./ast');
-const { Sym, SymbolType } = require('./symbol');
 const { TokenType } = require('./token');
+const { SymbolType, Sym } = require('./symbol');
+const { ParsingError } = require('./parsing-error');
 
 const Error = {
   NESTED_VAR: () => 'Nested variable declaration',
@@ -21,9 +22,9 @@ const Error = {
 };
 
 class Parser {
-  constructor(lexer, errNotifier, symTable) {
+  constructor(lexer, source, symTable) {
     this._lexer = lexer;
-    this._errNotifier = errNotifier;
+    this._source = source;
     this._symTable = symTable;
   }
 
@@ -490,7 +491,12 @@ class Parser {
   }
 
   _error(msg, pos = this._curTokenPos()) {
-    this._errNotifier.notify(msg, pos);
+    throw new ParsingError({
+      msg,
+      src: this._source,
+      col: pos.column,
+      ln: pos.line,
+    });
   }
 }
 

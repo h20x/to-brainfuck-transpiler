@@ -1,3 +1,4 @@
+const { ParsingError } = require('./parsing-error');
 const { Token, TokenType } = require('./token');
 
 // prettier-ignore
@@ -8,10 +9,9 @@ const RESERVED_WORDS = new Set([
 ]);
 
 class Lexer {
-  constructor(source, errNotifier) {
+  constructor(source) {
     this._source = source;
     this._curToken = null;
-    this._errNotifier = errNotifier;
   }
 
   getNextToken() {
@@ -196,7 +196,12 @@ class Lexer {
   }
 
   _error(msg, pos = this._source.getPos()) {
-    this._errNotifier.notify(msg, pos);
+    throw new ParsingError({
+      msg,
+      src: this._source,
+      col: pos.column,
+      ln: pos.line,
+    });
   }
 }
 

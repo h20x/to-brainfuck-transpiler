@@ -2,7 +2,6 @@ const { SemanticAnalyser } = require('./semantic-analyser');
 const { Parser } = require('./parser');
 const { Lexer } = require('./lexer');
 const { Source } = require('./source');
-const { ErrorNotifier } = require('./error-notifier');
 const { SymbolTable } = require('./symbol-table');
 
 describe('SemanticAnalyser', () => {
@@ -61,11 +60,10 @@ describe('SemanticAnalyser', () => {
     ],
   ])('should throw: %s', (program, errMsg) => {
     const source = new Source(program);
-    const errNotifier = new ErrorNotifier(source);
-    const lexer = new Lexer(source, errNotifier);
+    const lexer = new Lexer(source);
     const symTable = new SymbolTable();
-    const parser = new Parser(lexer, errNotifier, symTable);
-    const analyser = new SemanticAnalyser(errNotifier, symTable);
+    const parser = new Parser(lexer, source, symTable);
+    const analyser = new SemanticAnalyser(source, symTable);
 
     expect(() => analyser.analyse(parser.parse())).toThrow(errMsg);
   });

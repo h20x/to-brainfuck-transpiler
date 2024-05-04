@@ -1,23 +1,24 @@
 const { ASTNodeType } = require('./ast');
 const { SymbolTable } = require('./symbol-table');
 const { SymbolType, Sym } = require('./symbol');
+const { ParsingError } = require('./parsing-error');
 
 class SemanticAnalyser {
-  constructor(errNotifier, symTable) {
-    this._errNotifier = errNotifier;
+  constructor(source, symTable) {
+    this._source = source;
     this._symTable = symTable;
   }
 
   analyse(ast) {
-    new DefinitionChecker(ast, this._errNotifier, this._symTable).check();
+    new DefinitionChecker(ast, this._source, this._symTable).check();
     new RecursionChecker(ast).check();
   }
 }
 
 class DefinitionChecker {
-  constructor(ast, errNotifier, symTable) {
+  constructor(ast, source, symTable) {
     this._ast = ast;
-    this._errNotifier = errNotifier;
+    this._source = source;
     this._symTable = symTable;
   }
 
@@ -82,7 +83,7 @@ class DefinitionChecker {
     const formalParams = def.params();
 
     if (actualParams.length !== formalParams.length) {
-      this._errNotifier.notify(
+      this._error(
         `Wrong number of arguments for '${proc.name()}' procedure`,
         node.sourcePos()
       );
@@ -99,37 +100,25 @@ class DefinitionChecker {
     const sym = this._symTable.get(node.name());
 
     if (null == sym) {
-      this._errNotifier.notify(
-        `'${node.name()}' is not defined`,
-        node.sourcePos()
-      );
+      this._error(`'${node.name()}' is not defined`, node.sourcePos());
     }
 
     switch (node.type()) {
       case ASTNodeType.VAR_REF:
         if (SymbolType.VAR !== sym.type()) {
-          this._errNotifier.notify(
-            `'${node.name()}' is not a variable`,
-            node.sourcePos()
-          );
+          this._error(`'${node.name()}' is not a variable`, node.sourcePos());
         }
         break;
 
       case ASTNodeType.ARR_REF:
         if (SymbolType.ARR !== sym.type()) {
-          this._errNotifier.notify(
-            `'${node.name()}' is not an array`,
-            node.sourcePos()
-          );
+          this._error(`'${node.name()}' is not an array`, node.sourcePos());
         }
         break;
 
       case ASTNodeType.PROC_REF:
         if (SymbolType.PROC !== sym.type()) {
-          this._errNotifier.notify(
-            `'${node.name()}' is not a procedure`,
-            node.sourcePos()
-          );
+          this._error(`'${node.name()}' is not a procedure`, node.sourcePos());
         }
         break;
     }
@@ -144,6 +133,15 @@ class DefinitionChecker {
 
     this._checkNode(node.body());
     this._symTable = this._symTable.parent();
+  }
+
+  _error(msg, { column, line }) {
+    throw new ParsingError({
+      msg,
+      src: this._source,
+      col: column,
+      ln: line,
+    });
   }
 }
 

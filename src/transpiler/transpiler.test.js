@@ -1,5 +1,4 @@
 const { Source } = require('../source');
-const { ErrorNotifier } = require('../error-notifier');
 const { Lexer } = require('../lexer');
 const { Parser } = require('../parser');
 const { SemanticAnalyser } = require('../semantic-analyser');
@@ -679,11 +678,10 @@ function run(prog, input) {
 
 function transpile(code) {
   const source = new Source(code);
-  const errNotifier = new ErrorNotifier(source);
-  const lexer = new Lexer(source, errNotifier);
+  const lexer = new Lexer(source);
   const symTable = new SymbolTable();
-  const parser = new Parser(lexer, errNotifier, symTable);
-  const analyser = new SemanticAnalyser(errNotifier, symTable);
+  const parser = new Parser(lexer, source, symTable);
+  const analyser = new SemanticAnalyser(source, symTable);
   const ast = parser.parse();
   analyser.analyse(ast);
 

@@ -1,7 +1,6 @@
 const { Lexer } = require('./lexer');
 const { Parser } = require('./parser');
 const { Source } = require('./source');
-const { ErrorNotifier } = require('./error-notifier');
 const { ASTStringifier } = require('./ast-stringifier');
 const { SymbolTable } = require('./symbol-table');
 
@@ -228,8 +227,7 @@ describe('Parser', () => {
 
 function createParser(program) {
   const source = new Source(program);
-  const errNotifier = new ErrorNotifier(source);
-  const lexer = new Lexer(source, errNotifier);
+  const lexer = new Lexer(source);
 
-  return new Parser(lexer, errNotifier, new SymbolTable());
+  return new Parser(lexer, source, new SymbolTable());
 }

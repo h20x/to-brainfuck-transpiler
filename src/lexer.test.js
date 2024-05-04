@@ -1,6 +1,5 @@
 const { Lexer } = require('./lexer');
 const { Source } = require('./source');
-const { ErrorNotifier } = require('./error-notifier');
 const { TokenType: _ } = require('./token');
 
 describe('Lexer', () => {
@@ -207,8 +206,5 @@ describe('Lexer', () => {
 });
 
 function createLexer(input) {
-  const source = new Source(input);
-  const errNotifier = new ErrorNotifier(source);
-
-  return new Lexer(source, errNotifier);
+  return new Lexer(new Source(input));
 }
