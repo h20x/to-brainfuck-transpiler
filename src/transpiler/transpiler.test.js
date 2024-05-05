@@ -687,5 +687,5 @@ function transpile(code) {
   const ast = parser.parse();
   analyser.visit(ast);
 
-  return new Transpiler(ast).transpile();
+  return new Transpiler(ast, symTable).transpile();
 }

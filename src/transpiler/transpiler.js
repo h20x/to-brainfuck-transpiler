@@ -2,27 +2,16 @@ const { BFM } = require('./bf/bfm');
 const { ASTNodeType } = require('../ast');
 
 class Transpiler {
-  constructor(ast) {
+  constructor(ast, symTable) {
     this._ast = ast;
     this._bfm = new BFM();
-    this._procedures = new Map();
+    this._symTable = symTable;
   }
 
   transpile() {
-    this._collectProcedures([this._ast]);
     this._transpile(this._ast);
 
     return this._bfm.code();
-  }
-
-  _collectProcedures(nodes) {
-    for (const node of nodes) {
-      if (ASTNodeType.STMT_LIST === node.type()) {
-        this._collectProcedures(node.children());
-      } else if (ASTNodeType.PROC_DEF === node.type()) {
-        this._procedures.set(node.name(), node);
-      }
-    }
   }
 
   _transpile(node) {
@@ -135,7 +124,7 @@ class Transpiler {
 
   _transpileCall(node) {
     const [name, ...actualParams] = node.args().map(this._val);
-    const proc = this._procedures.get(name);
+    const proc = this._symTable.get(name).node();
     const formalParams = proc.params();
     const params = [];
 
