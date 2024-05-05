@@ -8,6 +8,7 @@ const {
   StmtList,
   ProcDef,
 } = require('./ast');
+const { Sym, SymbolType } = require('./symbol');
 const { TokenType } = require('./token');
 
 const Error = {
@@ -20,9 +21,10 @@ const Error = {
 };
 
 class Parser {
-  constructor(lexer, errNotifier) {
+  constructor(lexer, errNotifier, symTable) {
     this._lexer = lexer;
     this._errNotifier = errNotifier;
+    this._symTable = symTable;
   }
 
   parse() {
@@ -294,8 +296,10 @@ class Parser {
     const name = this._curTokenValue();
     const pos = this._curTokenPos();
     this._consume(TokenType.ID);
+    const node = new Decl({ name, sourcePos: pos, type: ASTNodeType.VAR_DECL });
+    this._addSym(SymbolType.VAR, node);
 
-    return new Decl({ type: ASTNodeType.VAR_DECL, name, sourcePos: pos });
+    return node;
   }
 
   _parseArrDecl() {
@@ -310,7 +314,16 @@ class Parser {
     this._consume(TokenType.NUM);
     this._consume(TokenType.RBRACKET);
 
-    return new Decl({ type: ASTNodeType.ARR_DECL, name, size, sourcePos: pos });
+    const node = new Decl({
+      name,
+      size,
+      sourcePos: pos,
+      type: ASTNodeType.ARR_DECL,
+    });
+
+    this._addSym(SymbolType.ARR, node);
+
+    return node;
   }
 
   _parseCall() {
@@ -363,8 +376,16 @@ class Parser {
     }
 
     const body = this._parseNestedStatements();
+    const node = new ProcDef({
+      name,
+      params: [...params],
+      body,
+      sourcePos: pos,
+    });
 
-    return new ProcDef({ name, params: [...params], body, sourcePos: pos });
+    this._addSym(SymbolType.PROC, node);
+
+    return node;
   }
 
   _parseArgs(types) {
@@ -452,6 +473,16 @@ class Parser {
 
   _curTokenPos() {
     return this._lexer.getCurToken().sourcePos();
+  }
+
+  _addSym(type, node) {
+    const name = node.name();
+
+    if (this._symTable.has(name)) {
+      this._error(`'${name}' is already declared`, node.sourcePos());
+    }
+
+    this._symTable.add(new Sym(name, type, node));
   }
 
   _unexpectedToken() {

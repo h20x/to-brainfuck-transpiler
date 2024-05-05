@@ -3,6 +3,7 @@ const { Parser } = require('./parser');
 const { Source } = require('./source');
 const { ErrorNotifier } = require('./error-notifier');
 const { ASTStringifier } = require('./ast-stringifier');
+const { SymbolTable } = require('./symbol-table');
 
 describe('Parser', () => {
   test.each([
@@ -207,6 +208,19 @@ describe('Parser', () => {
        end`,
       `Nested variable declaration`,
     ],
+    ['var Q q', `'q' is already declared`],
+    [
+      `var Q
+       var Q[20]`,
+      `'q' is already declared`,
+    ],
+    [
+      `proc a
+       end
+       proc a
+       end`,
+      `'a' is already declared`,
+    ],
   ])('should throw: %s', (program, errMsg) => {
     expect(() => createParser(program).parse()).toThrow(errMsg);
   });
@@ -217,5 +231,5 @@ function createParser(program) {
   const errNotifier = new ErrorNotifier(source);
   const lexer = new Lexer(source, errNotifier);
 
-  return new Parser(lexer, errNotifier);
+  return new Parser(lexer, errNotifier, new SymbolTable());
 }

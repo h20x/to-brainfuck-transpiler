@@ -3,22 +3,10 @@ const { Parser } = require('./parser');
 const { Lexer } = require('./lexer');
 const { Source } = require('./source');
 const { ErrorNotifier } = require('./error-notifier');
+const { SymbolTable } = require('./symbol-table');
 
 describe('SemanticAnalyser', () => {
   test.each([
-    ['var Q q', `'q' is already declared`],
-    [
-      `var Q
-       var Q[20]`,
-      `'q' is already declared`,
-    ],
-    [
-      `proc a
-       end
-       proc a
-       end`,
-      `'a' is already declared`,
-    ],
     [
       `var Q
        add Q Q S`,
@@ -75,8 +63,9 @@ describe('SemanticAnalyser', () => {
     const source = new Source(program);
     const errNotifier = new ErrorNotifier(source);
     const lexer = new Lexer(source, errNotifier);
-    const parser = new Parser(lexer, errNotifier);
-    const analyser = new SemanticAnalyser(errNotifier);
+    const symTable = new SymbolTable();
+    const parser = new Parser(lexer, errNotifier, symTable);
+    const analyser = new SemanticAnalyser(errNotifier, symTable);
 
     expect(() => analyser.visit(parser.parse())).toThrow(errMsg);
   });

@@ -3,14 +3,13 @@ const { SymbolTable } = require('./symbol-table');
 const { SymbolType, Sym } = require('./symbol');
 
 class SemanticAnalyser extends NodeVisitor {
-  constructor(errNotifier) {
+  constructor(errNotifier, symTable) {
     super();
-    this._symTable = new SymbolTable();
+    this._symTable = symTable;
     this._errNotifier = errNotifier;
   }
 
   visit(ast) {
-    new ProcCollector(this._symTable, this._errNotifier).visit(ast);
     super.visit(ast);
     new RecursionChecker().visit(ast);
   }
@@ -84,19 +83,6 @@ class SemanticAnalyser extends NodeVisitor {
     }
   }
 
-  visitDecl(node) {
-    if (this._symTable.has(node.name())) {
-      this._errNotifier.notify(
-        `'${node.name()}' is already declared`,
-        node.sourcePos()
-      );
-    }
-
-    const symType =
-      ASTNodeType.ARR_DECL === node.type() ? SymbolType.ARR : SymbolType.VAR;
-    this._symTable.add(new Sym(node.name(), symType, node));
-  }
-
   visitProcDef(node) {
     this._symTable = new SymbolTable(this._symTable);
 
@@ -106,25 +92,6 @@ class SemanticAnalyser extends NodeVisitor {
 
     node.body().accept(this);
     this._symTable = this._symTable.parent();
-  }
-}
-
-class ProcCollector extends NodeVisitor {
-  constructor(symTable, errNotifier) {
-    super();
-    this._symTable = symTable;
-    this._errNotifier = errNotifier;
-  }
-
-  visitProcDef(node) {
-    if (this._symTable.has(node.name())) {
-      this._errNotifier.notify(
-        `'${node.name()}' is already declared`,
-        node.sourcePos()
-      );
-    }
-
-    this._symTable.add(new Sym(node.name(), SymbolType.PROC, node));
   }
 }
 

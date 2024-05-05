@@ -5,6 +5,7 @@ const { Parser } = require('../parser');
 const { SemanticAnalyser } = require('../semantic-analyser');
 const { Transpiler } = require('./transpiler');
 const { bfi } = require('./bf/bfi');
+const { SymbolTable } = require('../symbol-table');
 
 describe('Transpiler', () => {
   test('set', () => {
@@ -680,8 +681,9 @@ function transpile(code) {
   const source = new Source(code);
   const errNotifier = new ErrorNotifier(source);
   const lexer = new Lexer(source, errNotifier);
-  const parser = new Parser(lexer, errNotifier);
-  const analyser = new SemanticAnalyser(errNotifier);
+  const symTable = new SymbolTable();
+  const parser = new Parser(lexer, errNotifier, symTable);
+  const analyser = new SemanticAnalyser(errNotifier, symTable);
   const ast = parser.parse();
   analyser.visit(ast);
 
