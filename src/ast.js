@@ -21,8 +21,6 @@ class ASTNode {
   sourcePos() {
     return { ...this._sourcePos };
   }
-
-  accept(visitor) {}
 }
 
 class Stmt extends ASTNode {
@@ -33,10 +31,6 @@ class Stmt extends ASTNode {
 
   args() {
     return this._args.slice();
-  }
-
-  accept(visitor) {
-    return visitor.visitStmt(this);
   }
 }
 
@@ -49,10 +43,6 @@ class CompStmt extends Stmt {
   body() {
     return this._body;
   }
-
-  accept(visitor) {
-    return visitor.visitCompoundStmt(this);
-  }
 }
 
 class Prim extends ASTNode {
@@ -64,10 +54,6 @@ class Prim extends ASTNode {
   value() {
     return this._value;
   }
-
-  accept(visitor) {
-    return visitor.visitPrimitive(this);
-  }
 }
 
 class Ref extends ASTNode {
@@ -78,10 +64,6 @@ class Ref extends ASTNode {
 
   name() {
     return this._name;
-  }
-
-  accept(visitor) {
-    return visitor.visitRef(this);
   }
 }
 
@@ -99,10 +81,6 @@ class Decl extends ASTNode {
   size() {
     return this._size;
   }
-
-  accept(visitor) {
-    return visitor.visitDecl(this);
-  }
 }
 
 class StmtList extends ASTNode {
@@ -113,10 +91,6 @@ class StmtList extends ASTNode {
 
   children() {
     return this._children.slice();
-  }
-
-  accept(visitor) {
-    return visitor.visitStmtList(this);
   }
 }
 
@@ -134,39 +108,10 @@ class ProcDef extends CompStmt {
   params() {
     return this._params.slice();
   }
-
-  accept(visitor) {
-    return visitor.visitProcDef(this);
-  }
-}
-
-class NodeVisitor {
-  visit(node) {
-    return node.accept(this);
-  }
-
-  visitStmt(node) {}
-
-  visitCompoundStmt(node) {}
-
-  visitPrimitive(node) {}
-
-  visitRef(node) {}
-
-  visitDecl(node) {}
-
-  visitStmtList(node) {
-    for (const stmt of node.children()) {
-      stmt.accept(this);
-    }
-  }
-
-  visitProcDef(node) {}
 }
 
 module.exports = {
   ASTNodeType,
-  NodeVisitor,
   Stmt,
   CompStmt,
   Prim,

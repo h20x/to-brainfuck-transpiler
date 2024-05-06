@@ -685,7 +685,7 @@ function transpile(code) {
   const parser = new Parser(lexer, errNotifier, symTable);
   const analyser = new SemanticAnalyser(errNotifier, symTable);
   const ast = parser.parse();
-  analyser.visit(ast);
+  analyser.analyse(ast);
 
   return new Transpiler(ast, symTable).transpile();
 }

@@ -1,35 +1,86 @@
-const { NodeVisitor, ASTNodeType } = require('./ast');
+const { ASTNodeType } = require('./ast');
 
-class ASTStringifier extends NodeVisitor {
+class ASTStringifier {
   constructor(ast) {
-    super();
     this._ast = ast;
   }
 
   stringify() {
-    return this.visit(this._ast);
+    return this._stringifyNode(this._ast);
   }
 
-  visitStmt(node) {
+  _stringifyNode(node) {
+    switch (node.type()) {
+      case ASTNodeType.STMT_LIST:
+        return this._stringifyStmtList(node);
+
+      case ASTNodeType.PROC_DEF:
+        return this._stringifyProcDef(node);
+
+      case ASTNodeType.VAR_DECL:
+      case ASTNodeType.ARR_DECL:
+        return this._stringifyDecl(node);
+
+      case ASTNodeType.NUM:
+      case ASTNodeType.CHAR:
+      case ASTNodeType.STR:
+        return this._stringifyPrimitive(node);
+
+      case ASTNodeType.VAR_REF:
+      case ASTNodeType.ARR_REF:
+      case ASTNodeType.PROC_REF:
+        return this._stringifyRef(node);
+
+      case ASTNodeType.IFEQ:
+      case ASTNodeType.IFNEQ:
+      case ASTNodeType.WNEQ:
+        return this._stringifyCompoundStmt(node);
+
+      default:
+        return this._stringifyStmt(node);
+    }
+  }
+
+  _stringifyStmtList(node) {
+    const children = node
+      .children()
+      .map((node) => this._stringifyNode(node))
+      .join(' ');
+
+    return `{ ${children} }`;
+  }
+
+  _stringifyStmt(node) {
     return `${node.type()} ${this._stringifyArgs(node)}`;
   }
 
-  visitCompoundStmt(node) {
+  _stringifyCompoundStmt(node) {
     const args = this._stringifyArgs(node);
-    const body = this.visit(node.body());
+    const body = this._stringifyNode(node.body());
 
     return `${node.type()} ${args} ${body}`;
   }
 
-  visitPrimitive(node) {
+  _stringifyProcDef(node) {
+    const procName = node.name();
+    const params = node
+      .params()
+      .map((param) => `'${param}'`)
+      .join(' ');
+    const body = this._stringifyNode(node.body());
+
+    return `${node.type()} '${procName}' (${params}) ${body}`;
+  }
+
+  _stringifyPrimitive(node) {
     return `${node.type()} '${node.value()}'`;
   }
 
-  visitRef(node) {
+  _stringifyRef(node) {
     return `${node.type()} '${node.name()}'`;
   }
 
-  visitDecl(node) {
+  _stringifyDecl(node) {
     if (ASTNodeType.ARR_DECL === node.type()) {
       return `${node.type()} '${node.name()}[${node.size()}]'`;
     }
@@ -37,30 +88,10 @@ class ASTStringifier extends NodeVisitor {
     return `${node.type()} '${node.name()}'`;
   }
 
-  visitStmtList(node) {
-    const children = node
-      .children()
-      .map((node) => this.visit(node))
-      .join(' ');
-
-    return `{ ${children} }`;
-  }
-
-  visitProcDef(node) {
-    const procName = node.name();
-    const params = node
-      .params()
-      .map((param) => `'${param}'`)
-      .join(' ');
-    const body = this.visit(node.body());
-
-    return `${node.type()} '${procName}' (${params}) ${body}`;
-  }
-
   _stringifyArgs(node) {
     return node
       .args()
-      .map((node) => this.visit(node))
+      .map((node) => this._stringifyNode(node))
       .join(' ');
   }
 }

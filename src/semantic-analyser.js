@@ -1,49 +1,101 @@
-const { ASTNodeType, NodeVisitor } = require('./ast');
+const { ASTNodeType } = require('./ast');
 const { SymbolTable } = require('./symbol-table');
 const { SymbolType, Sym } = require('./symbol');
 
-class SemanticAnalyser extends NodeVisitor {
+class SemanticAnalyser {
   constructor(errNotifier, symTable) {
-    super();
-    this._symTable = symTable;
     this._errNotifier = errNotifier;
+    this._symTable = symTable;
   }
 
-  visit(ast) {
-    super.visit(ast);
-    new RecursionChecker().visit(ast);
+  analyse(ast) {
+    new DefinitionChecker(ast, this._errNotifier, this._symTable).check();
+    new RecursionChecker(ast).check();
+  }
+}
+
+class DefinitionChecker {
+  constructor(ast, errNotifier, symTable) {
+    this._ast = ast;
+    this._errNotifier = errNotifier;
+    this._symTable = symTable;
   }
 
-  visitStmt(node) {
+  check() {
+    this._checkNode(this._ast);
+  }
+
+  _checkNode(node) {
+    switch (node.type()) {
+      case ASTNodeType.VAR_DECL:
+      case ASTNodeType.ARR_DECL:
+      case ASTNodeType.NUM:
+      case ASTNodeType.CHAR:
+      case ASTNodeType.STR:
+        return;
+
+      case ASTNodeType.STMT_LIST:
+        return this._checkStmtList(node);
+
+      case ASTNodeType.PROC_DEF:
+        return this._checkProcDef(node);
+
+      case ASTNodeType.CALL:
+        return this._checkCall(node);
+
+      case ASTNodeType.VAR_REF:
+      case ASTNodeType.ARR_REF:
+      case ASTNodeType.PROC_REF:
+        return this._checkRef(node);
+
+      case ASTNodeType.IFEQ:
+      case ASTNodeType.IFNEQ:
+      case ASTNodeType.WNEQ:
+        return this._checkCompoundStmt(node);
+
+      default:
+        return this._checkArgs(node);
+    }
+  }
+
+  _checkStmtList(node) {
+    for (const child of node.children()) {
+      this._checkNode(child);
+    }
+  }
+
+  _checkCompoundStmt(node) {
+    this._checkArgs(node);
+    this._checkNode(node.body());
+  }
+
+  _checkCall(node) {
+    this._checkArgs(node);
+    this._checkParams(node);
+  }
+
+  _checkParams(node) {
+    const args = node.args();
+    const proc = args.shift();
+    const actualParams = args;
+    const def = this._symTable.get(proc.name()).node();
+    const formalParams = def.params();
+
+    if (actualParams.length !== formalParams.length) {
+      this._errNotifier.notify(
+        `Wrong number of arguments for '${proc.name()}' procedure`,
+        node.sourcePos()
+      );
+    }
+  }
+
+  _checkArgs(node) {
     for (const arg of node.args()) {
-      arg.accept(this);
-    }
-
-    if (ASTNodeType.CALL === node.type()) {
-      const args = node.args();
-      const proc = args.shift();
-      const actualParams = args;
-      const def = this._symTable.get(proc.name()).node();
-      const formalParams = def.params();
-
-      if (actualParams.length !== formalParams.length) {
-        this._errNotifier.notify(
-          `Wrong number of arguments for '${proc.name()}' procedure`,
-          node.sourcePos()
-        );
-      }
+      this._checkNode(arg);
     }
   }
 
-  visitCompoundStmt(node) {
-    for (const arg of node.args()) {
-      arg.accept(this);
-    }
-
-    node.body().accept(this);
-  }
-
-  visitRef(node) {
+  _checkRef(node) {
     const sym = this._symTable.get(node.name());
 
     if (null == sym) {
@@ -83,45 +135,67 @@ class SemanticAnalyser extends NodeVisitor {
     }
   }
 
-  visitProcDef(node) {
+  _checkProcDef(node) {
     this._symTable = new SymbolTable(this._symTable);
 
     for (const param of node.params()) {
       this._symTable.add(new Sym(param, SymbolType.VAR));
     }
 
-    node.body().accept(this);
+    this._checkNode(node.body());
     this._symTable = this._symTable.parent();
   }
 }
 
-class RecursionChecker extends NodeVisitor {
-  constructor() {
-    super();
+class RecursionChecker {
+  constructor(ast) {
+    this._ast = ast;
     this._proc = null;
     this._callTable = new Map();
   }
 
-  visit(ast) {
-    super.visit(ast);
-    this._checkForRecursion();
+  check() {
+    this._visitNode(this._ast);
+    this._checkAllForRecursion();
   }
 
-  visitStmt(node) {
-    if (ASTNodeType.CALL === node.type()) {
-      const callee = node.args()[0].name();
-      this._addCallee(callee);
+  _visitNode(node) {
+    switch (node.type()) {
+      case ASTNodeType.STMT_LIST:
+        return this._visitStmtList(node);
+
+      case ASTNodeType.CALL:
+        return this._visitCall(node);
+
+      case ASTNodeType.PROC_DEF:
+        return this._visitProcDef(node);
+
+      case ASTNodeType.IFEQ:
+      case ASTNodeType.IFNEQ:
+      case ASTNodeType.WNEQ:
+        return this._visitBody(node);
     }
   }
 
-  visitCompoundStmt(node) {
-    node.body().accept(this);
+  _visitStmtList(node) {
+    for (const child of node.children()) {
+      this._visitNode(child);
+    }
   }
 
-  visitProcDef(node) {
+  _visitCall(node) {
+    const callee = node.args()[0].name();
+    this._addCallee(callee);
+  }
+
+  _visitProcDef(node) {
     this._proc = node.name();
-    node.body().accept(this);
+    this._visitBody(node);
     this._proc = null;
+  }
+
+  _visitBody(node) {
+    this._visitNode(node.body());
   }
 
   _addCallee(callee) {
@@ -136,20 +210,23 @@ class RecursionChecker extends NodeVisitor {
     this._callTable.get(this._proc).add(callee);
   }
 
-  _checkForRecursion() {
+  _checkAllForRecursion() {
     for (const [caller, callees] of this._callTable.entries()) {
-      this._check(callees, new Set([caller]));
+      this._checkForRecursion(callees, new Set([caller]));
     }
   }
 
-  _check(procNames, chain) {
+  _checkForRecursion(procNames, chain) {
     for (const proc of procNames) {
       if (chain.has(proc)) {
         this._error(chain);
       }
 
       if (this._callTable.has(proc)) {
-        this._check(this._callTable.get(proc), new Set(chain).add(proc));
+        this._checkForRecursion(
+          this._callTable.get(proc),
+          new Set(chain).add(proc)
+        );
       }
     }
   }

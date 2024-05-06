@@ -67,6 +67,6 @@ describe('SemanticAnalyser', () => {
     const parser = new Parser(lexer, errNotifier, symTable);
     const analyser = new SemanticAnalyser(errNotifier, symTable);
 
-    expect(() => analyser.visit(parser.parse())).toThrow(errMsg);
+    expect(() => analyser.analyse(parser.parse())).toThrow(errMsg);
   });
 });
