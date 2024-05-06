@@ -680,10 +680,9 @@ function transpile(code) {
   const source = new Source(code);
   const lexer = new Lexer(source);
   const symTable = new SymbolTable();
-  const parser = new Parser(lexer, source, symTable);
-  const analyser = new SemanticAnalyser(source, symTable);
+  const parser = new Parser(source, lexer, symTable);
   const ast = parser.parse();
-  analyser.analyse(ast);
+  new SemanticAnalyser(ast, source, symTable).analyse();
 
   return new Transpiler(ast, symTable).transpile();
 }

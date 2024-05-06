@@ -1,12 +1,8 @@
 const { ASTNodeType } = require('./ast');
 
 class ASTStringifier {
-  constructor(ast) {
-    this._ast = ast;
-  }
-
-  stringify() {
-    return this._stringifyNode(this._ast);
+  stringify(ast) {
+    return this._stringifyNode(ast);
   }
 
   _stringifyNode(node) {

@@ -4,14 +4,15 @@ const { SymbolType, Sym } = require('./symbol');
 const { ParsingError } = require('./parsing-error');
 
 class SemanticAnalyser {
-  constructor(source, symTable) {
+  constructor(ast, source, symTable) {
+    this._ast = ast;
     this._source = source;
     this._symTable = symTable;
   }
 
-  analyse(ast) {
-    new DefinitionChecker(ast, this._source, this._symTable).check();
-    new RecursionChecker(ast).check();
+  analyse() {
+    new DefinitionChecker(this._ast, this._source, this._symTable).check();
+    new RecursionChecker(this._ast).check();
   }
 }
 

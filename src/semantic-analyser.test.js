@@ -62,9 +62,10 @@ describe('SemanticAnalyser', () => {
     const source = new Source(program);
     const lexer = new Lexer(source);
     const symTable = new SymbolTable();
-    const parser = new Parser(lexer, source, symTable);
-    const analyser = new SemanticAnalyser(source, symTable);
+    const parser = new Parser(source, lexer, symTable);
+    const ast = parser.parse();
+    const analyser = new SemanticAnalyser(ast, source, symTable);
 
-    expect(() => analyser.analyse(parser.parse())).toThrow(errMsg);
+    expect(() => analyser.analyse()).toThrow(errMsg);
   });
 });

@@ -22,9 +22,9 @@ const Error = {
 };
 
 class Parser {
-  constructor(lexer, source, symTable) {
-    this._lexer = lexer;
+  constructor(source, lexer, symTable) {
     this._source = source;
+    this._lexer = lexer;
     this._symTable = symTable;
   }
 

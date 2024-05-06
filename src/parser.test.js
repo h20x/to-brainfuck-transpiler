@@ -161,7 +161,7 @@ describe('Parser', () => {
     ],
   ])('should parse: %s', (program, expected) => {
     const parser = createParser(program);
-    const result = new ASTStringifier(parser.parse()).stringify();
+    const result = new ASTStringifier().stringify(parser.parse());
 
     expected = expected
       .split('\n')
@@ -229,5 +229,5 @@ function createParser(program) {
   const source = new Source(program);
   const lexer = new Lexer(source);
 
-  return new Parser(lexer, source, new SymbolTable());
+  return new Parser(source, lexer, new SymbolTable());
 }
