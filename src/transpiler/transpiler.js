@@ -150,9 +150,6 @@ class Transpiler {
       case ASTNodeType.NUM:
         return node.value();
 
-      case ASTNodeType.CHAR:
-        return node.value().charCodeAt();
-
       case ASTNodeType.VAR_REF:
       case ASTNodeType.ARR_REF:
       case ASTNodeType.PROC_REF:

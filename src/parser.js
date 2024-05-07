@@ -69,36 +69,27 @@ class Parser {
       case TokenType.SET:
         return this._parseStmt({
           nodeType: ASTNodeType.SET,
-          args: [
-            [TokenType.VAR_REF],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-          ],
+          args: [[TokenType.VAR_REF], [TokenType.VAR_REF, TokenType.NUM]],
         });
 
       case TokenType.INC:
         return this._parseStmt({
           nodeType: ASTNodeType.INC,
-          args: [
-            [TokenType.VAR_REF],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-          ],
+          args: [[TokenType.VAR_REF], [TokenType.VAR_REF, TokenType.NUM]],
         });
 
       case TokenType.DEC:
         return this._parseStmt({
           nodeType: ASTNodeType.DEC,
-          args: [
-            [TokenType.VAR_REF],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-          ],
+          args: [[TokenType.VAR_REF], [TokenType.VAR_REF, TokenType.NUM]],
         });
 
       case TokenType.ADD:
         return this._parseStmt({
           nodeType: ASTNodeType.ADD,
           args: [
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
+            [TokenType.VAR_REF, TokenType.NUM],
+            [TokenType.VAR_REF, TokenType.NUM],
             [TokenType.VAR_REF],
           ],
         });
@@ -107,8 +98,8 @@ class Parser {
         return this._parseStmt({
           nodeType: ASTNodeType.SUB,
           args: [
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
+            [TokenType.VAR_REF, TokenType.NUM],
+            [TokenType.VAR_REF, TokenType.NUM],
             [TokenType.VAR_REF],
           ],
         });
@@ -117,8 +108,8 @@ class Parser {
         return this._parseStmt({
           nodeType: ASTNodeType.MUL,
           args: [
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
+            [TokenType.VAR_REF, TokenType.NUM],
+            [TokenType.VAR_REF, TokenType.NUM],
             [TokenType.VAR_REF],
           ],
         });
@@ -127,8 +118,8 @@ class Parser {
         return this._parseStmt({
           nodeType: ASTNodeType.DIVMOD,
           args: [
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
+            [TokenType.VAR_REF, TokenType.NUM],
+            [TokenType.VAR_REF, TokenType.NUM],
             [TokenType.VAR_REF],
             [TokenType.VAR_REF],
           ],
@@ -138,8 +129,8 @@ class Parser {
         return this._parseStmt({
           nodeType: ASTNodeType.DIV,
           args: [
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
+            [TokenType.VAR_REF, TokenType.NUM],
+            [TokenType.VAR_REF, TokenType.NUM],
             [TokenType.VAR_REF],
           ],
         });
@@ -148,8 +139,8 @@ class Parser {
         return this._parseStmt({
           nodeType: ASTNodeType.MOD,
           args: [
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
+            [TokenType.VAR_REF, TokenType.NUM],
+            [TokenType.VAR_REF, TokenType.NUM],
             [TokenType.VAR_REF],
           ],
         });
@@ -158,8 +149,8 @@ class Parser {
         return this._parseStmt({
           nodeType: ASTNodeType.CMP,
           args: [
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
+            [TokenType.VAR_REF, TokenType.NUM],
+            [TokenType.VAR_REF, TokenType.NUM],
             [TokenType.VAR_REF],
           ],
         });
@@ -168,9 +159,9 @@ class Parser {
         return this._parseStmt({
           nodeType: ASTNodeType.A2B,
           args: [
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
+            [TokenType.VAR_REF, TokenType.NUM],
+            [TokenType.VAR_REF, TokenType.NUM],
+            [TokenType.VAR_REF, TokenType.NUM],
             [TokenType.VAR_REF],
           ],
         });
@@ -179,7 +170,7 @@ class Parser {
         return this._parseStmt({
           nodeType: ASTNodeType.B2A,
           args: [
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
+            [TokenType.VAR_REF, TokenType.NUM],
             [TokenType.VAR_REF],
             [TokenType.VAR_REF],
             [TokenType.VAR_REF],
@@ -197,8 +188,8 @@ class Parser {
           nodeType: ASTNodeType.LSET,
           args: [
             [TokenType.ARR_REF],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
+            [TokenType.VAR_REF, TokenType.NUM],
+            [TokenType.VAR_REF, TokenType.NUM],
           ],
         });
 
@@ -207,7 +198,7 @@ class Parser {
           nodeType: ASTNodeType.LGET,
           args: [
             [TokenType.ARR_REF],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
+            [TokenType.VAR_REF, TokenType.NUM],
             [TokenType.VAR_REF],
           ],
         });
@@ -215,28 +206,19 @@ class Parser {
       case TokenType.IFEQ:
         return this._parseCompoundStmt({
           nodeType: ASTNodeType.IFEQ,
-          args: [
-            [TokenType.VAR_REF],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-          ],
+          args: [[TokenType.VAR_REF], [TokenType.VAR_REF, TokenType.NUM]],
         });
 
       case TokenType.IFNEQ:
         return this._parseCompoundStmt({
           nodeType: ASTNodeType.IFNEQ,
-          args: [
-            [TokenType.VAR_REF],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-          ],
+          args: [[TokenType.VAR_REF], [TokenType.VAR_REF, TokenType.NUM]],
         });
 
       case TokenType.WNEQ:
         return this._parseCompoundStmt({
           nodeType: ASTNodeType.WNEQ,
-          args: [
-            [TokenType.VAR_REF],
-            [TokenType.VAR_REF, TokenType.NUM, TokenType.CHAR],
-          ],
+          args: [[TokenType.VAR_REF], [TokenType.VAR_REF, TokenType.NUM]],
         });
 
       case TokenType.VAR:
@@ -412,9 +394,6 @@ class Parser {
 
       case TokenType.NUM:
         return this._parsePrimitive(ASTNodeType.NUM);
-
-      case TokenType.CHAR:
-        return this._parsePrimitive(ASTNodeType.CHAR);
 
       case TokenType.STR:
         return this._parsePrimitive(ASTNodeType.STR);

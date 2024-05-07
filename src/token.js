@@ -4,7 +4,7 @@ const { createEnum } = require('./enum');
 const TokenType = createEnum([
   'VAR', 'SET', 'INC', 'DEC', 'ADD', 'SUB', 'MUL', 'DIVMOD', 'DIV', 'MOD',
   'CMP', 'A2B', 'B2A', 'LSET', 'LGET', 'IFEQ', 'IFNEQ', 'WNEQ', 'PROC', 'END',
-  'CALL', 'READ', 'MSG', 'ID', 'NUM', 'CHAR', 'STR', 'LBRACKET', 'RBRACKET',
+  'CALL', 'READ', 'MSG', 'ID', 'NUM', 'STR', 'LBRACKET', 'RBRACKET',
   'EOF', 'VAR_REF', 'ARR_REF', 'PROC_REF',
 ]);
 

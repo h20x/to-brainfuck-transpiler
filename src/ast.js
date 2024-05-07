@@ -4,7 +4,7 @@ const { createEnum } = require('./enum');
 const ASTNodeType = createEnum([
   'STMT_LIST', 'DECL_LIST', 'SET', 'INC', 'DEC', 'ADD', 'SUB', 'MUL', 'DIVMOD',
   'DIV', 'MOD', 'CMP', 'A2B', 'B2A', 'READ', 'LSET', 'LGET', 'MSG', 'CALL',
-  'IFEQ', 'IFNEQ', 'WNEQ', 'PROC_DEF', 'CHAR', 'STR', 'NUM', 'VAR_DECL',
+  'IFEQ', 'IFNEQ', 'WNEQ', 'PROC_DEF', 'STR', 'NUM', 'VAR_DECL',
   'ARR_DECL', 'VAR_REF', 'ARR_REF', 'PROC_REF',
 ]);
 

@@ -11,10 +11,10 @@ describe('Parser', () => {
       `{ DECL_LIST VAR_DECL 'a' VAR_DECL 'b' ARR_DECL 'c[16]' }`,
     ],
     [`set a b`, `{ SET VAR_REF 'a' VAR_REF 'b' }`],
-    [`set a 'b'`, `{ SET VAR_REF 'a' CHAR 'b' }`],
+    [`set a 'b'`, `{ SET VAR_REF 'a' NUM '98' }`],
     [`inc a b`, `{ INC VAR_REF 'a' VAR_REF 'b' }`],
     [`dec a 0`, `{ DEC VAR_REF 'a' NUM '0' }`],
-    [`dec a '0'`, `{ DEC VAR_REF 'a' CHAR '0' }`],
+    [`dec a '0'`, `{ DEC VAR_REF 'a' NUM '48' }`],
     [`add a 0 b`, `{ ADD VAR_REF 'a' NUM '0' VAR_REF 'b' }`],
     [`sub 0 a b`, `{ SUB NUM '0' VAR_REF 'a' VAR_REF 'b' }`],
     [`mul 0 0 a`, `{ MUL NUM '0' NUM '0' VAR_REF 'a' }`],
@@ -29,7 +29,7 @@ describe('Parser', () => {
     [`b2a 0 a b c`, `{ B2A NUM '0' VAR_REF 'a' VAR_REF 'b' VAR_REF 'c' }`],
     [`read a`, `{ READ VAR_REF 'a' }`],
     [`lset a b c`, `{ LSET ARR_REF 'a' VAR_REF 'b' VAR_REF 'c' }`],
-    [`lset a 'b' 'c'`, `{ LSET ARR_REF 'a' CHAR 'b' CHAR 'c' }`],
+    [`lset a 'b' 'c'`, `{ LSET ARR_REF 'a' NUM '98' NUM '99' }`],
     [`lget a 0 c`, `{ LGET ARR_REF 'a' NUM '0' VAR_REF 'c' }`],
     [
       `msg a "str1" "str2" b`,
@@ -118,8 +118,8 @@ describe('Parser', () => {
        end`,
       `{
           DECL_LIST VAR_DECL 'a' VAR_DECL 'b' VAR_DECL 't' VAR_DECL 'f' ARR_DECL 'l[5]' VAR_DECL 'x'
-          SET VAR_REF 'a' CHAR 'U'
-          SET VAR_REF 'b' CHAR 'V'
+          SET VAR_REF 'a' NUM '85'
+          SET VAR_REF 'b' NUM '86'
 
           MSG STR 'Outer Before : ' VAR_REF 'a' VAR_REF 'b' STR '\\n'
           CALL PROC_REF 'swap' VAR_REF 'b' VAR_REF 'a'

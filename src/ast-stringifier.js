@@ -18,7 +18,6 @@ class ASTStringifier {
         return this._stringifyDecl(node);
 
       case ASTNodeType.NUM:
-      case ASTNodeType.CHAR:
       case ASTNodeType.STR:
         return this._stringifyPrimitive(node);
 

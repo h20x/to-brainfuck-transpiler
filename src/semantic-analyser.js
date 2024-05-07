@@ -32,7 +32,6 @@ class DefinitionChecker {
       case ASTNodeType.VAR_DECL:
       case ASTNodeType.ARR_DECL:
       case ASTNodeType.NUM:
-      case ASTNodeType.CHAR:
       case ASTNodeType.STR:
         return;
 

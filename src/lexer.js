@@ -48,8 +48,8 @@ class Lexer {
         break;
 
       case this._isChar("'"):
-        tokenType = TokenType.CHAR;
-        tokenValue = this._readCharLiteral();
+        tokenType = TokenType.NUM;
+        tokenValue = this._readCharLiteral().charCodeAt();
         break;
 
       case this._isChar('"'):
@@ -117,23 +117,15 @@ class Lexer {
   }
 
   _readCharLiteral() {
-    let str = this._source.peek(4);
+    const str = this._source.peek(3);
 
-    if (/'(\\'|\\"|\\n|\\r|\\t)'/.test(str)) {
-      this._source.advance(4);
-
-      return str[1] + str[2];
+    if (!/'(.|\s)'/.test(str)) {
+      this._error('Invalid CHAR');
     }
 
-    str = this._source.peek(3);
+    this._source.advance(3);
 
-    if (/'[^'"]'/.test(str)) {
-      this._source.advance(3);
-
-      return str[1];
-    }
-
-    this._error('Invalid CHAR');
+    return str[1];
   }
 
   _readString() {
