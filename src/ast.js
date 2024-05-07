@@ -9,17 +9,17 @@ const ASTNodeType = createEnum([
 ]);
 
 class ASTNode {
-  constructor({ type, sourcePos = { line: -1, column: -1 } }) {
+  constructor({ type, pos = { line: -1, column: -1 } }) {
     this._type = type;
-    this._sourcePos = { ...sourcePos };
+    this._pos = { ...pos };
   }
 
   type() {
     return this._type;
   }
 
-  sourcePos() {
-    return { ...this._sourcePos };
+  pos() {
+    return { ...this._pos };
   }
 }
 

@@ -7,14 +7,8 @@ class Source {
     this._idx = 0;
   }
 
-  getPos() {
+  pos() {
     return { index: this._idx, line: this._line, column: this._col };
-  }
-
-  setPos({ index, line, column }) {
-    this._idx = index;
-    this._line = line;
-    this._col = column;
   }
 
   peek(len = 1) {

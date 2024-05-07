@@ -67,159 +67,123 @@ class Parser {
   _parseStatement() {
     switch (this._curTokenType()) {
       case TokenType.SET:
-        return this._parseStmt({
-          nodeType: ASTNodeType.SET,
-          args: [[TokenType.VAR_REF], [TokenType.VAR_REF, TokenType.NUM]],
-        });
+        return this._parseStmt(ASTNodeType.SET, [
+          [TokenType.VAR_REF],
+          [TokenType.VAR_REF, TokenType.NUM],
+        ]);
 
       case TokenType.INC:
-        return this._parseStmt({
-          nodeType: ASTNodeType.INC,
-          args: [[TokenType.VAR_REF], [TokenType.VAR_REF, TokenType.NUM]],
-        });
+        return this._parseStmt(ASTNodeType.INC, [
+          [TokenType.VAR_REF],
+          [TokenType.VAR_REF, TokenType.NUM],
+        ]);
 
       case TokenType.DEC:
-        return this._parseStmt({
-          nodeType: ASTNodeType.DEC,
-          args: [[TokenType.VAR_REF], [TokenType.VAR_REF, TokenType.NUM]],
-        });
+        return this._parseStmt(ASTNodeType.DEC, [
+          [TokenType.VAR_REF],
+          [TokenType.VAR_REF, TokenType.NUM],
+        ]);
 
       case TokenType.ADD:
-        return this._parseStmt({
-          nodeType: ASTNodeType.ADD,
-          args: [
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF],
-          ],
-        });
+        return this._parseStmt(ASTNodeType.ADD, [
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF],
+        ]);
 
       case TokenType.SUB:
-        return this._parseStmt({
-          nodeType: ASTNodeType.SUB,
-          args: [
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF],
-          ],
-        });
+        return this._parseStmt(ASTNodeType.SUB, [
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF],
+        ]);
 
       case TokenType.MUL:
-        return this._parseStmt({
-          nodeType: ASTNodeType.MUL,
-          args: [
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF],
-          ],
-        });
+        return this._parseStmt(ASTNodeType.MUL, [
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF],
+        ]);
 
       case TokenType.DIVMOD:
-        return this._parseStmt({
-          nodeType: ASTNodeType.DIVMOD,
-          args: [
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF],
-            [TokenType.VAR_REF],
-          ],
-        });
+        return this._parseStmt(ASTNodeType.DIVMOD, [
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF],
+          [TokenType.VAR_REF],
+        ]);
 
       case TokenType.DIV:
-        return this._parseStmt({
-          nodeType: ASTNodeType.DIV,
-          args: [
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF],
-          ],
-        });
+        return this._parseStmt(ASTNodeType.DIV, [
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF],
+        ]);
 
       case TokenType.MOD:
-        return this._parseStmt({
-          nodeType: ASTNodeType.MOD,
-          args: [
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF],
-          ],
-        });
+        return this._parseStmt(ASTNodeType.MOD, [
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF],
+        ]);
 
       case TokenType.CMP:
-        return this._parseStmt({
-          nodeType: ASTNodeType.CMP,
-          args: [
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF],
-          ],
-        });
+        return this._parseStmt(ASTNodeType.CMP, [
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF],
+        ]);
 
       case TokenType.A2B:
-        return this._parseStmt({
-          nodeType: ASTNodeType.A2B,
-          args: [
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF],
-          ],
-        });
+        return this._parseStmt(ASTNodeType.A2B, [
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF],
+        ]);
 
       case TokenType.B2A:
-        return this._parseStmt({
-          nodeType: ASTNodeType.B2A,
-          args: [
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF],
-            [TokenType.VAR_REF],
-            [TokenType.VAR_REF],
-          ],
-        });
+        return this._parseStmt(ASTNodeType.B2A, [
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF],
+          [TokenType.VAR_REF],
+          [TokenType.VAR_REF],
+        ]);
 
       case TokenType.READ:
-        return this._parseStmt({
-          nodeType: ASTNodeType.READ,
-          args: [[TokenType.VAR_REF]],
-        });
+        return this._parseStmt(ASTNodeType.READ, [[TokenType.VAR_REF]]);
 
       case TokenType.LSET:
-        return this._parseStmt({
-          nodeType: ASTNodeType.LSET,
-          args: [
-            [TokenType.ARR_REF],
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF, TokenType.NUM],
-          ],
-        });
+        return this._parseStmt(ASTNodeType.LSET, [
+          [TokenType.ARR_REF],
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF, TokenType.NUM],
+        ]);
 
       case TokenType.LGET:
-        return this._parseStmt({
-          nodeType: ASTNodeType.LGET,
-          args: [
-            [TokenType.ARR_REF],
-            [TokenType.VAR_REF, TokenType.NUM],
-            [TokenType.VAR_REF],
-          ],
-        });
+        return this._parseStmt(ASTNodeType.LGET, [
+          [TokenType.ARR_REF],
+          [TokenType.VAR_REF, TokenType.NUM],
+          [TokenType.VAR_REF],
+        ]);
 
       case TokenType.IFEQ:
-        return this._parseCompoundStmt({
-          nodeType: ASTNodeType.IFEQ,
-          args: [[TokenType.VAR_REF], [TokenType.VAR_REF, TokenType.NUM]],
-        });
+        return this._parseCompoundStmt(ASTNodeType.IFEQ, [
+          [TokenType.VAR_REF],
+          [TokenType.VAR_REF, TokenType.NUM],
+        ]);
 
       case TokenType.IFNEQ:
-        return this._parseCompoundStmt({
-          nodeType: ASTNodeType.IFNEQ,
-          args: [[TokenType.VAR_REF], [TokenType.VAR_REF, TokenType.NUM]],
-        });
+        return this._parseCompoundStmt(ASTNodeType.IFNEQ, [
+          [TokenType.VAR_REF],
+          [TokenType.VAR_REF, TokenType.NUM],
+        ]);
 
       case TokenType.WNEQ:
-        return this._parseCompoundStmt({
-          nodeType: ASTNodeType.WNEQ,
-          args: [[TokenType.VAR_REF], [TokenType.VAR_REF, TokenType.NUM]],
-        });
+        return this._parseCompoundStmt(ASTNodeType.WNEQ, [
+          [TokenType.VAR_REF],
+          [TokenType.VAR_REF, TokenType.NUM],
+        ]);
 
       case TokenType.VAR:
         return this._parseDeclList();
@@ -238,21 +202,21 @@ class Parser {
     }
   }
 
-  _parseStmt({ nodeType, args }) {
+  _parseStmt(nodeType, args) {
     const pos = this._curTokenPos();
     this._getNextToken();
     const _args = this._parseArgs(args);
 
-    return new Stmt({ type: nodeType, args: _args, sourcePos: pos });
+    return new Stmt({ type: nodeType, args: _args, pos });
   }
 
-  _parseCompoundStmt({ nodeType, args }) {
+  _parseCompoundStmt(nodeType, args) {
     const pos = this._curTokenPos();
     this._getNextToken();
     const _args = this._parseArgs(args);
     const body = this._parseNestedStatements();
 
-    return new CompStmt({ type: nodeType, args: _args, body, sourcePos: pos });
+    return new CompStmt({ type: nodeType, args: _args, body, pos });
   }
 
   _parseDeclList() {
@@ -261,50 +225,46 @@ class Parser {
     const args = [];
 
     while (TokenType.ID === this._curTokenType()) {
-      if (TokenType.LBRACKET === this._lexer.peekNextToken().type()) {
-        args.push(this._parseArrDecl());
-      } else {
-        args.push(this._parseVarDecl());
-      }
+      args.push(this._parseDecl());
     }
 
     if (!args.length) {
       this._unexpectedToken();
     }
 
-    return new Stmt({ type: ASTNodeType.DECL_LIST, args, sourcePos: pos });
+    return new Stmt({ type: ASTNodeType.DECL_LIST, args, pos });
   }
 
-  _parseVarDecl() {
-    const name = this._curTokenValue();
-    const pos = this._curTokenPos();
-    this._consume(TokenType.ID);
-    const node = new Decl({ name, sourcePos: pos, type: ASTNodeType.VAR_DECL });
-    this._addSym(SymbolType.VAR, node);
-
-    return node;
-  }
-
-  _parseArrDecl() {
+  _parseDecl() {
     const name = this._curTokenValue();
     const pos = this._curTokenPos();
 
     this._consume(TokenType.ID);
-    this._consume(TokenType.LBRACKET);
 
-    const size = this._curTokenValue();
+    let node, symType;
 
-    this._consume(TokenType.NUM);
-    this._consume(TokenType.RBRACKET);
+    if (TokenType.LBRACKET === this._curTokenType()) {
+      this._consume(TokenType.LBRACKET);
 
-    const node = new Decl({
-      name,
-      size,
-      sourcePos: pos,
-      type: ASTNodeType.ARR_DECL,
-    });
+      const size = this._curTokenValue();
 
-    this._addSym(SymbolType.ARR, node);
+      this._consume(TokenType.NUM);
+      this._consume(TokenType.RBRACKET);
+
+      node = new Decl({
+        name,
+        size,
+        pos,
+        type: ASTNodeType.ARR_DECL,
+      });
+
+      symType = SymbolType.ARR;
+    } else {
+      node = new Decl({ name, pos, type: ASTNodeType.VAR_DECL });
+      symType = SymbolType.VAR;
+    }
+
+    this._addSym(symType, node);
 
     return node;
   }
@@ -318,7 +278,7 @@ class Parser {
       args.push(this._parseRef(ASTNodeType.VAR_REF));
     }
 
-    return new Stmt({ type: ASTNodeType.CALL, args, sourcePos: pos });
+    return new Stmt({ type: ASTNodeType.CALL, args, pos });
   }
 
   _parseMsg() {
@@ -337,7 +297,7 @@ class Parser {
       this._unexpectedToken();
     }
 
-    return new Stmt({ type: ASTNodeType.MSG, args, sourcePos: pos });
+    return new Stmt({ type: ASTNodeType.MSG, args, pos });
   }
 
   _parseProcDef() {
@@ -361,9 +321,9 @@ class Parser {
     const body = this._parseNestedStatements();
     const node = new ProcDef({
       name,
-      params: [...params],
       body,
-      sourcePos: pos,
+      pos,
+      params: [...params],
     });
 
     this._addSym(SymbolType.PROC, node);
@@ -420,7 +380,7 @@ class Parser {
     const pos = this._curTokenPos();
     this._consume(TokenType.ID);
 
-    return new Ref({ type: nodeType, name, sourcePos: pos });
+    return new Ref({ type: nodeType, name, pos });
   }
 
   _parsePrimitive(nodeType) {
@@ -428,7 +388,7 @@ class Parser {
     const pos = this._curTokenPos();
     this._getNextToken();
 
-    return new Prim({ type: nodeType, value, sourcePos: pos });
+    return new Prim({ type: nodeType, value, pos });
   }
 
   _consume(type) {
@@ -452,14 +412,14 @@ class Parser {
   }
 
   _curTokenPos() {
-    return this._lexer.getCurToken().sourcePos();
+    return this._lexer.getCurToken().pos();
   }
 
   _addSym(type, node) {
     const name = node.name();
 
     if (this._symTable.has(name)) {
-      this._error(`'${name}' is already declared`, node.sourcePos());
+      this._error(`'${name}' is already declared`, node.pos());
     }
 
     this._symTable.add(new Sym(name, type, node));
@@ -469,12 +429,12 @@ class Parser {
     this._error(Error.UNEXPECTED_TOKEN(this._lexer.getCurToken()));
   }
 
-  _error(msg, pos = this._curTokenPos()) {
+  _error(msg, { column, line } = this._curTokenPos()) {
     throw new ParsingError({
       msg,
       src: this._source,
-      col: pos.column,
-      ln: pos.line,
+      col: column,
+      ln: line,
     });
   }
 }

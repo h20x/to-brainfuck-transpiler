@@ -175,21 +175,6 @@ describe('Lexer', () => {
     expect(() => lexer.getNextToken()).toThrow();
   });
 
-  test('peekNextToken()', () => {
-    const lexer = createLexer('x 0');
-
-    lexer.getNextToken();
-    expect(lexer.getCurToken().type()).toBe(_.ID);
-
-    expect(lexer.peekNextToken().type()).toBe(_.NUM);
-    expect(lexer.peekNextToken().value()).toBe(0);
-
-    lexer.getNextToken();
-    expect(lexer.getCurToken().type()).toBe(_.NUM);
-
-    expect(lexer.peekNextToken().type()).toBe(_.EOF);
-  });
-
   test('token source position', () => {
     const lexer = createLexer(`a ab 123\n'a' "abc"`);
 
@@ -200,7 +185,7 @@ describe('Lexer', () => {
       { line: 1, column: 0 },
       { line: 1, column: 4 },
     ].forEach((pos) => {
-      expect(lexer.getNextToken().sourcePos()).toMatchObject(pos);
+      expect(lexer.getNextToken().pos()).toMatchObject(pos);
     });
   });
 });

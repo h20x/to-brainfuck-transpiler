@@ -85,7 +85,7 @@ class DefinitionChecker {
     if (actualParams.length !== formalParams.length) {
       this._error(
         `Wrong number of arguments for '${proc.name()}' procedure`,
-        node.sourcePos()
+        node.pos()
       );
     }
   }
@@ -100,25 +100,25 @@ class DefinitionChecker {
     const sym = this._symTable.get(node.name());
 
     if (null == sym) {
-      this._error(`'${node.name()}' is not defined`, node.sourcePos());
+      this._error(`'${node.name()}' is not defined`, node.pos());
     }
 
     switch (node.type()) {
       case ASTNodeType.VAR_REF:
         if (SymbolType.VAR !== sym.type()) {
-          this._error(`'${node.name()}' is not a variable`, node.sourcePos());
+          this._error(`'${node.name()}' is not a variable`, node.pos());
         }
         break;
 
       case ASTNodeType.ARR_REF:
         if (SymbolType.ARR !== sym.type()) {
-          this._error(`'${node.name()}' is not an array`, node.sourcePos());
+          this._error(`'${node.name()}' is not an array`, node.pos());
         }
         break;
 
       case ASTNodeType.PROC_REF:
         if (SymbolType.PROC !== sym.type()) {
-          this._error(`'${node.name()}' is not a procedure`, node.sourcePos());
+          this._error(`'${node.name()}' is not a procedure`, node.pos());
         }
         break;
     }

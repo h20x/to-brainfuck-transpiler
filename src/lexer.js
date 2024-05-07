@@ -18,14 +18,6 @@ class Lexer {
     return (this._curToken = this._nextToken());
   }
 
-  peekNextToken() {
-    const pos = this._source.getPos();
-    const token = this._nextToken();
-    this._source.setPos(pos);
-
-    return token;
-  }
-
   getCurToken() {
     return this._curToken;
   }
@@ -33,7 +25,7 @@ class Lexer {
   _nextToken() {
     this._skipComments();
 
-    const tokenPos = this._source.getPos();
+    const tokenPos = this._source.pos();
     let tokenType = null;
     let tokenValue = null;
 
@@ -129,7 +121,7 @@ class Lexer {
   }
 
   _readString() {
-    const pos = this._source.getPos();
+    const pos = this._source.pos();
 
     this._source.advance();
 
@@ -187,12 +179,12 @@ class Lexer {
     return ch === this._source.peek();
   }
 
-  _error(msg, pos = this._source.getPos()) {
+  _error(msg, { column, line } = this._source.pos()) {
     throw new ParsingError({
       msg,
       src: this._source,
-      col: pos.column,
-      ln: pos.line,
+      col: column,
+      ln: line,
     });
   }
 }
