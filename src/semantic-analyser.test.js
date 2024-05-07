@@ -27,7 +27,7 @@ describe('SemanticAnalyser', () => {
        proc a b c
        end
        call a x`,
-      `Wrong number of arguments for 'a' procedure`,
+      `Wrong number of params for 'a' procedure`,
     ],
     [
       `var x

@@ -84,7 +84,7 @@ class DefinitionChecker {
 
     if (actualParams.length !== formalParams.length) {
       this._error(
-        `Wrong number of arguments for '${proc.name()}' procedure`,
+        `Wrong number of params for '${proc.name()}' procedure`,
         node.pos()
       );
     }
