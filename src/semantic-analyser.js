@@ -60,14 +60,14 @@ class DefinitionChecker {
   }
 
   _checkStmtList(node) {
-    for (const child of node.children()) {
+    for (const child of node.attr('children')) {
       this._checkNode(child);
     }
   }
 
   _checkCompoundStmt(node) {
     this._checkArgs(node);
-    this._checkNode(node.body());
+    this._checkNode(node.attr('body'));
   }
 
   _checkCall(node) {
@@ -76,49 +76,51 @@ class DefinitionChecker {
   }
 
   _checkParams(node) {
-    const args = node.args();
+    const args = node.attr('args').slice();
     const proc = args.shift();
     const actualParams = args;
-    const def = this._symTable.get(proc.name()).node();
-    const formalParams = def.params();
+    const def = this._symTable.get(proc.attr('name')).node();
+    const formalParams = def.attr('params');
 
     if (actualParams.length !== formalParams.length) {
       this._error(
-        `Wrong number of params for '${proc.name()}' procedure`,
+        `Wrong number of params for '${proc.attr('name')}' procedure`,
         node.pos()
       );
     }
   }
 
   _checkArgs(node) {
-    for (const arg of node.args()) {
+    for (const arg of node.attr('args')) {
       this._checkNode(arg);
     }
   }
 
   _checkRef(node) {
-    const sym = this._symTable.get(node.name());
+    const name = node.attr('name');
+    const pos = node.pos();
+    const sym = this._symTable.get(name);
 
     if (null == sym) {
-      this._error(`'${node.name()}' is not defined`, node.pos());
+      this._error(`'${name}' is not defined`, pos);
     }
 
     switch (node.type()) {
       case ASTNodeType.VAR_REF:
         if (SymbolType.VAR !== sym.type()) {
-          this._error(`'${node.name()}' is not a variable`, node.pos());
+          this._error(`'${name}' is not a variable`, pos);
         }
         break;
 
       case ASTNodeType.ARR_REF:
         if (SymbolType.ARR !== sym.type()) {
-          this._error(`'${node.name()}' is not an array`, node.pos());
+          this._error(`'${name}' is not an array`, pos);
         }
         break;
 
       case ASTNodeType.PROC_REF:
         if (SymbolType.PROC !== sym.type()) {
-          this._error(`'${node.name()}' is not a procedure`, node.pos());
+          this._error(`'${name}' is not a procedure`, pos);
         }
         break;
     }
@@ -127,11 +129,11 @@ class DefinitionChecker {
   _checkProcDef(node) {
     this._symTable = new SymbolTable(this._symTable);
 
-    for (const param of node.params()) {
+    for (const param of node.attr('params')) {
       this._symTable.add(new Sym(param, SymbolType.VAR));
     }
 
-    this._checkNode(node.body());
+    this._checkNode(node.attr('body'));
     this._symTable = this._symTable.parent();
   }
 
@@ -176,24 +178,24 @@ class RecursionChecker {
   }
 
   _visitStmtList(node) {
-    for (const child of node.children()) {
+    for (const child of node.attr('children')) {
       this._visitNode(child);
     }
   }
 
   _visitCall(node) {
-    const callee = node.args()[0].name();
-    this._addCallee(callee);
+    const proc = node.attr('args')[0];
+    this._addCallee(proc.attr('name'));
   }
 
   _visitProcDef(node) {
-    this._proc = node.name();
+    this._proc = node.attr('name');
     this._visitBody(node);
     this._proc = null;
   }
 
   _visitBody(node) {
-    this._visitNode(node.body());
+    this._visitNode(node.attr('body'));
   }
 
   _addCallee(callee) {

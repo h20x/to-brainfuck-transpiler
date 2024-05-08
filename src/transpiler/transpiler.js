@@ -76,56 +76,60 @@ class Transpiler {
         return this._bfm.lget(...args);
 
       case ASTNodeType.WNEQ:
-        return this._bfm.wneq(...args, () => this._transpile(node.body()));
+        return this._bfm.wneq(...args, () =>
+          this._transpile(node.attr('body'))
+        );
 
       case ASTNodeType.IFEQ:
-        return this._bfm.cond(...args, () => this._transpile(node.body()));
+        return this._bfm.cond(...args, () =>
+          this._transpile(node.attr('body'))
+        );
 
       case ASTNodeType.IFNEQ:
         return this._bfm.cond(...args, null, () =>
-          this._transpile(node.body())
+          this._transpile(node.attr('body'))
         );
     }
   }
 
   _transpileStmtList(node) {
-    for (const child of node.children()) {
+    for (const child of node.attr('children')) {
       this._transpile(child);
     }
   }
 
   _transpileDeclList(node) {
-    for (const arg of node.args()) {
+    for (const arg of node.attr('args')) {
       switch (arg.type()) {
         case ASTNodeType.VAR_DECL:
-          this._bfm.decl(arg.name());
+          this._bfm.decl(arg.attr('name'));
           break;
 
         case ASTNodeType.ARR_DECL:
-          this._bfm.decl([arg.name(), arg.size()]);
+          this._bfm.decl([arg.attr('name'), arg.attr('size')]);
           break;
       }
     }
   }
 
   _transpileMsg(node) {
-    for (const arg of node.args()) {
+    for (const arg of node.attr('args')) {
       switch (arg.type()) {
         case ASTNodeType.VAR_REF:
-          this._bfm.out(arg.name());
+          this._bfm.out(arg.attr('name'));
           break;
 
         case ASTNodeType.STR:
-          this._bfm.outStr(arg.value());
+          this._bfm.outStr(arg.attr('value'));
           break;
       }
     }
   }
 
   _transpileCall(node) {
-    const [name, ...actualParams] = node.args().map(this._val);
+    const [name, ...actualParams] = node.attr('args').map(this._val);
     const proc = this._symTable.get(name).node();
-    const formalParams = proc.params();
+    const formalParams = proc.attr('params');
     const params = [];
 
     for (let i = 0; i < actualParams.length; i++) {
@@ -133,27 +137,23 @@ class Transpiler {
     }
 
     this._bfm.enter(params);
-    this._transpile(proc.body());
+    this._transpile(proc.attr('body'));
     this._bfm.leave();
   }
 
   _args(node) {
-    if (ASTNodeType.STMT_LIST === node.type()) {
-      return [];
-    }
-
-    return node.args().map(this._val);
+    return (node.attr('args') || []).map(this._val);
   }
 
   _val(node) {
     switch (node.type()) {
       case ASTNodeType.NUM:
-        return node.value();
+        return node.attr('value');
 
       case ASTNodeType.VAR_REF:
       case ASTNodeType.ARR_REF:
       case ASTNodeType.PROC_REF:
-        return node.name();
+        return node.attr('name');
     }
   }
 }

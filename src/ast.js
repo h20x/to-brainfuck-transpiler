@@ -9,114 +9,35 @@ const ASTNodeType = createEnum([
 ]);
 
 class ASTNode {
-  constructor({ type, pos = { line: -1, column: -1 } }) {
+  constructor(type = null, pos = { line: -1, column: -1 }) {
     this._type = type;
     this._pos = { ...pos };
+    this._attrs = new Map();
   }
 
-  type() {
-    return this._type;
+  type(val) {
+    if (null == val) {
+      return this._type;
+    }
+
+    this._type = val;
   }
 
-  pos() {
-    return { ...this._pos };
-  }
-}
+  pos(val) {
+    if (null == val) {
+      return { ...this._pos };
+    }
 
-class Stmt extends ASTNode {
-  constructor(opt) {
-    super(opt);
-    this._args = (opt.args || []).slice();
+    this._pos = { ...val };
   }
 
-  args() {
-    return this._args.slice();
-  }
-}
+  attr(name, val) {
+    if (null == val) {
+      return this._attrs.get(name);
+    }
 
-class CompStmt extends Stmt {
-  constructor(opt) {
-    super(opt);
-    this._body = opt.body;
-  }
-
-  body() {
-    return this._body;
+    this._attrs.set(name, val);
   }
 }
 
-class Prim extends ASTNode {
-  constructor(opt) {
-    super(opt);
-    this._value = opt.value;
-  }
-
-  value() {
-    return this._value;
-  }
-}
-
-class Ref extends ASTNode {
-  constructor(opt) {
-    super(opt);
-    this._name = opt.name;
-  }
-
-  name() {
-    return this._name;
-  }
-}
-
-class Decl extends ASTNode {
-  constructor(opt) {
-    super(opt);
-    this._name = opt.name;
-    this._size = opt.size || 1;
-  }
-
-  name() {
-    return this._name;
-  }
-
-  size() {
-    return this._size;
-  }
-}
-
-class StmtList extends ASTNode {
-  constructor(opt) {
-    super({ ...opt, type: ASTNodeType.STMT_LIST });
-    this._children = opt.children.slice();
-  }
-
-  children() {
-    return this._children.slice();
-  }
-}
-
-class ProcDef extends CompStmt {
-  constructor(opt) {
-    super({ ...opt, type: ASTNodeType.PROC_DEF });
-    this._name = opt.name;
-    this._params = opt.params.slice();
-  }
-
-  name() {
-    return this._name;
-  }
-
-  params() {
-    return this._params.slice();
-  }
-}
-
-module.exports = {
-  ASTNodeType,
-  Stmt,
-  CompStmt,
-  Prim,
-  Ref,
-  Decl,
-  StmtList,
-  ProcDef,
-};
+module.exports = { ASTNodeType, ASTNode };

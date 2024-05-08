@@ -1,13 +1,4 @@
-const {
-  ASTNodeType,
-  Stmt,
-  CompStmt,
-  Prim,
-  Ref,
-  Decl,
-  StmtList,
-  ProcDef,
-} = require('./ast');
+const { ASTNodeType, ASTNode } = require('./ast');
 const { TokenType } = require('./token');
 const { SymbolType, Sym } = require('./symbol');
 const { ParsingError } = require('./parsing-error');
@@ -35,17 +26,21 @@ class Parser {
   }
 
   _parseStatements() {
-    const nodes = [];
+    const node = this._createNode(ASTNodeType.STMT_LIST);
+    const children = [];
 
     while (TokenType.EOF !== this._curTokenType()) {
-      nodes.push(this._parseStatement());
+      children.push(this._parseStatement());
     }
 
-    return new StmtList({ children: nodes });
+    node.attr('children', children);
+
+    return node;
   }
 
   _parseNestedStatements() {
-    const nodes = [];
+    const node = this._createNode(ASTNodeType.STMT_LIST);
+    const children = [];
 
     while (TokenType.END !== this._curTokenType()) {
       if (TokenType.VAR === this._curTokenType()) {
@@ -56,12 +51,14 @@ class Parser {
         this._error(Error.NESTED_PROC());
       }
 
-      nodes.push(this._parseStatement());
+      children.push(this._parseStatement());
     }
 
     this._consume(TokenType.END);
 
-    return new StmtList({ children: nodes });
+    node.attr('children', children);
+
+    return node;
   }
 
   _parseStatement() {
@@ -203,24 +200,24 @@ class Parser {
   }
 
   _parseStmt(nodeType, args) {
-    const pos = this._curTokenPos();
+    const node = this._createNode(nodeType);
     this._getNextToken();
-    const _args = this._parseArgs(args);
+    node.attr('args', this._parseArgs(args));
 
-    return new Stmt({ type: nodeType, args: _args, pos });
+    return node;
   }
 
   _parseCompoundStmt(nodeType, args) {
-    const pos = this._curTokenPos();
+    const node = this._createNode(nodeType);
     this._getNextToken();
-    const _args = this._parseArgs(args);
-    const body = this._parseNestedStatements();
+    node.attr('args', this._parseArgs(args));
+    node.attr('body', this._parseNestedStatements());
 
-    return new CompStmt({ type: nodeType, args: _args, body, pos });
+    return node;
   }
 
   _parseDeclList() {
-    const pos = this._curTokenPos();
+    const node = this._createNode(ASTNodeType.DECL_LIST);
     this._consume(TokenType.VAR);
     const args = [];
 
@@ -232,45 +229,36 @@ class Parser {
       this._unexpectedToken();
     }
 
-    return new Stmt({ type: ASTNodeType.DECL_LIST, args, pos });
+    node.attr('args', args);
+
+    return node;
   }
 
   _parseDecl() {
-    const name = this._curTokenValue();
-    const pos = this._curTokenPos();
-
+    const node = this._createNode(null);
+    node.attr('name', this._curTokenValue());
     this._consume(TokenType.ID);
-
-    let node, symType;
 
     if (TokenType.LBRACKET === this._curTokenType()) {
       this._consume(TokenType.LBRACKET);
 
-      const size = this._curTokenValue();
+      node.attr('size', this._curTokenValue());
 
       this._consume(TokenType.NUM);
       this._consume(TokenType.RBRACKET);
 
-      node = new Decl({
-        name,
-        size,
-        pos,
-        type: ASTNodeType.ARR_DECL,
-      });
-
-      symType = SymbolType.ARR;
+      node.type(ASTNodeType.ARR_DECL);
+      this._addSym(SymbolType.ARR, node);
     } else {
-      node = new Decl({ name, pos, type: ASTNodeType.VAR_DECL });
-      symType = SymbolType.VAR;
+      node.type(ASTNodeType.VAR_DECL);
+      this._addSym(SymbolType.VAR, node);
     }
-
-    this._addSym(symType, node);
 
     return node;
   }
 
   _parseCall() {
-    const pos = this._curTokenPos();
+    const node = this._createNode(ASTNodeType.CALL);
     this._consume(TokenType.CALL);
     const args = [this._parseRef(ASTNodeType.PROC_REF)];
 
@@ -278,11 +266,13 @@ class Parser {
       args.push(this._parseRef(ASTNodeType.VAR_REF));
     }
 
-    return new Stmt({ type: ASTNodeType.CALL, args, pos });
+    node.attr('args', args);
+
+    return node;
   }
 
   _parseMsg() {
-    const pos = this._curTokenPos();
+    const node = this._createNode(ASTNodeType.MSG);
     this._consume(TokenType.MSG);
     const args = [];
 
@@ -297,13 +287,15 @@ class Parser {
       this._unexpectedToken();
     }
 
-    return new Stmt({ type: ASTNodeType.MSG, args, pos });
+    node.attr('args', args);
+
+    return node;
   }
 
   _parseProcDef() {
-    const pos = this._curTokenPos();
+    const node = this._createNode(ASTNodeType.PROC_DEF);
     this._consume(TokenType.PROC);
-    const name = this._curTokenValue();
+    node.attr('name', this._curTokenValue());
     this._consume(TokenType.ID);
     const params = new Set();
 
@@ -311,20 +303,15 @@ class Parser {
       const param = this._curTokenValue();
 
       if (params.has(param)) {
-        this._error(Error.DUPLICATE_PARAM(param, name));
+        this._error(Error.DUPLICATE_PARAM(param, node.attr('name')));
       }
 
       params.add(param);
       this._getNextToken();
     }
 
-    const body = this._parseNestedStatements();
-    const node = new ProcDef({
-      name,
-      body,
-      pos,
-      params: [...params],
-    });
+    node.attr('body', this._parseNestedStatements());
+    node.attr('params', [...params]);
 
     this._addSym(SymbolType.PROC, node);
 
@@ -376,19 +363,19 @@ class Parser {
   }
 
   _parseRef(nodeType) {
-    const name = this._curTokenValue();
-    const pos = this._curTokenPos();
+    const node = this._createNode(nodeType);
+    node.attr('name', this._curTokenValue());
     this._consume(TokenType.ID);
 
-    return new Ref({ type: nodeType, name, pos });
+    return node;
   }
 
   _parsePrimitive(nodeType) {
-    const value = this._curTokenValue();
-    const pos = this._curTokenPos();
+    const node = this._createNode(nodeType);
+    node.attr('value', this._curTokenValue());
     this._getNextToken();
 
-    return new Prim({ type: nodeType, value, pos });
+    return node;
   }
 
   _consume(type) {
@@ -416,13 +403,17 @@ class Parser {
   }
 
   _addSym(type, node) {
-    const name = node.name();
+    const name = node.attr('name');
 
     if (this._symTable.has(name)) {
       this._error(`'${name}' is already declared`, node.pos());
     }
 
     this._symTable.add(new Sym(name, type, node));
+  }
+
+  _createNode(type, pos = this._curTokenPos()) {
+    return new ASTNode(type, pos);
   }
 
   _unexpectedToken() {

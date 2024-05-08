@@ -38,7 +38,7 @@ class ASTStringifier {
 
   _stringifyStmtList(node) {
     const children = node
-      .children()
+      .attr('children')
       .map((node) => this._stringifyNode(node))
       .join(' ');
 
@@ -51,41 +51,41 @@ class ASTStringifier {
 
   _stringifyCompoundStmt(node) {
     const args = this._stringifyArgs(node);
-    const body = this._stringifyNode(node.body());
+    const body = this._stringifyNode(node.attr('body'));
 
     return `${node.type()} ${args} ${body}`;
   }
 
   _stringifyProcDef(node) {
-    const procName = node.name();
+    const procName = node.attr('name');
     const params = node
-      .params()
+      .attr('params')
       .map((param) => `'${param}'`)
       .join(' ');
-    const body = this._stringifyNode(node.body());
+    const body = this._stringifyNode(node.attr('body'));
 
     return `${node.type()} '${procName}' (${params}) ${body}`;
   }
 
   _stringifyPrimitive(node) {
-    return `${node.type()} '${node.value()}'`;
+    return `${node.type()} '${node.attr('value')}'`;
   }
 
   _stringifyRef(node) {
-    return `${node.type()} '${node.name()}'`;
+    return `${node.type()} '${node.attr('name')}'`;
   }
 
   _stringifyDecl(node) {
     if (ASTNodeType.ARR_DECL === node.type()) {
-      return `${node.type()} '${node.name()}[${node.size()}]'`;
+      return `${node.type()} '${node.attr('name')}[${node.attr('size')}]'`;
     }
 
-    return `${node.type()} '${node.name()}'`;
+    return `${node.type()} '${node.attr('name')}'`;
   }
 
   _stringifyArgs(node) {
     return node
-      .args()
+      .attr('args')
       .map((node) => this._stringifyNode(node))
       .join(' ');
   }
