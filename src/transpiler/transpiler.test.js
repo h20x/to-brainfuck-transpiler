@@ -1,10 +1,5 @@
-const { Source } = require('../source');
-const { Lexer } = require('../lexer/lexer');
-const { Parser } = require('../parser/parser');
-const { SemanticAnalyser } = require('../parser/semantic-analyser');
-const { Transpiler } = require('./transpiler');
 const { bfi } = require('../bf/bfi');
-const { SymbolTable } = require('../parser/symbol-table');
+const { kcuf } = require('../kcuf');
 
 describe('Transpiler', () => {
   test('set', () => {
@@ -667,22 +662,11 @@ describe('Advanced Tests', () => {
 });
 
 function run(prog, input) {
-  const bf = transpile(prog);
+  const bf = kcuf(prog);
   const result = bfi(bf, input);
 
   return {
     out: () => result.out,
     mem: (s, e) => result.mem.slice(null == e ? 0 : s, null == e ? s : e),
   };
-}
-
-function transpile(code) {
-  const source = new Source(code);
-  const lexer = new Lexer(source);
-  const symTable = new SymbolTable();
-  const parser = new Parser(source, lexer, symTable);
-  const ast = parser.parse();
-  new SemanticAnalyser(source, ast, symTable).analyse();
-
-  return new Transpiler(ast, symTable).transpile();
 }
