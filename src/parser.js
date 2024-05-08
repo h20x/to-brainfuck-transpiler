@@ -7,7 +7,7 @@ const Error = {
   NESTED_VAR: () => 'Nested variable declaration',
   NESTED_PROC: () => 'Nested procedure definition',
   UNEXPECTED_TOKEN: (token) =>
-    `Unexpected token: Token(type: ${token.type()}, value: ${token.value()})`,
+    `Unexpected token: Token(type: ${token.type}, value: ${token.value})`,
   DUPLICATE_PARAM: (param, proc) =>
     `Duplicate param '${param}' in '${proc}' procedure`,
 };
@@ -29,7 +29,7 @@ class Parser {
     const node = this._createNode(ASTNodeType.STMT_LIST);
     const children = [];
 
-    while (TokenType.EOF !== this._curTokenType()) {
+    while (TokenType.EOF !== this._curToken().type) {
       children.push(this._parseStatement());
     }
 
@@ -42,12 +42,12 @@ class Parser {
     const node = this._createNode(ASTNodeType.STMT_LIST);
     const children = [];
 
-    while (TokenType.END !== this._curTokenType()) {
-      if (TokenType.VAR === this._curTokenType()) {
+    while (TokenType.END !== this._curToken().type) {
+      if (TokenType.VAR === this._curToken().type) {
         this._error(Error.NESTED_VAR());
       }
 
-      if (TokenType.PROC === this._curTokenType()) {
+      if (TokenType.PROC === this._curToken().type) {
         this._error(Error.NESTED_PROC());
       }
 
@@ -62,7 +62,7 @@ class Parser {
   }
 
   _parseStatement() {
-    switch (this._curTokenType()) {
+    switch (this._curToken().type) {
       case TokenType.SET:
         return this._parseStmt(ASTNodeType.SET, [
           [TokenType.VAR_REF],
@@ -221,7 +221,7 @@ class Parser {
     this._consume(TokenType.VAR);
     const args = [];
 
-    while (TokenType.ID === this._curTokenType()) {
+    while (TokenType.ID === this._curToken().type) {
       args.push(this._parseDecl());
     }
 
@@ -236,13 +236,13 @@ class Parser {
 
   _parseDecl() {
     const node = this._createNode(null);
-    node.name = this._curTokenValue();
+    node.name = this._curToken().value;
     this._consume(TokenType.ID);
 
-    if (TokenType.LBRACKET === this._curTokenType()) {
+    if (TokenType.LBRACKET === this._curToken().type) {
       this._consume(TokenType.LBRACKET);
 
-      node.size = this._curTokenValue();
+      node.size = this._curToken().value;
 
       this._consume(TokenType.NUM);
       this._consume(TokenType.RBRACKET);
@@ -262,7 +262,7 @@ class Parser {
     this._consume(TokenType.CALL);
     const args = [this._parseRef(ASTNodeType.PROC_REF)];
 
-    while (TokenType.ID === this._curTokenType()) {
+    while (TokenType.ID === this._curToken().type) {
       args.push(this._parseRef(ASTNodeType.VAR_REF));
     }
 
@@ -277,8 +277,8 @@ class Parser {
     const args = [];
 
     while (
-      TokenType.ID === this._curTokenType() ||
-      TokenType.STR === this._curTokenType()
+      TokenType.ID === this._curToken().type ||
+      TokenType.STR === this._curToken().type
     ) {
       args.push(this._parseArg([TokenType.VAR_REF, TokenType.STR]));
     }
@@ -295,12 +295,12 @@ class Parser {
   _parseProcDef() {
     const node = this._createNode(ASTNodeType.PROC_DEF);
     this._consume(TokenType.PROC);
-    node.name = this._curTokenValue();
+    node.name = this._curToken().value;
     this._consume(TokenType.ID);
     const params = new Set();
 
-    while (TokenType.ID === this._curTokenType()) {
-      const param = this._curTokenValue();
+    while (TokenType.ID === this._curToken().type) {
+      const param = this._curToken().value;
 
       if (params.has(param)) {
         this._error(Error.DUPLICATE_PARAM(param, node.name));
@@ -359,12 +359,12 @@ class Parser {
       type = TokenType.ID;
     }
 
-    return type === this._curTokenType();
+    return type === this._curToken().type;
   }
 
   _parseRef(nodeType) {
     const node = this._createNode(nodeType);
-    node.name = this._curTokenValue();
+    node.name = this._curToken().value;
     this._consume(TokenType.ID);
 
     return node;
@@ -372,14 +372,14 @@ class Parser {
 
   _parsePrimitive(nodeType) {
     const node = this._createNode(nodeType);
-    node.value = this._curTokenValue();
+    node.value = this._curToken().value;
     this._getNextToken();
 
     return node;
   }
 
   _consume(type) {
-    if (type !== this._curTokenType()) {
+    if (type !== this._curToken().type) {
       this._unexpectedToken();
     }
 
@@ -390,16 +390,8 @@ class Parser {
     return this._lexer.getNextToken();
   }
 
-  _curTokenType() {
-    return this._lexer.getCurToken().type();
-  }
-
-  _curTokenValue() {
-    return this._lexer.getCurToken().value();
-  }
-
-  _curTokenPos() {
-    return this._lexer.getCurToken().pos();
+  _curToken() {
+    return this._lexer.getCurToken();
   }
 
   _addSym(type, node) {
@@ -412,7 +404,7 @@ class Parser {
     this._symTable.add(new Sym(name, type, node));
   }
 
-  _createNode(type, pos = this._curTokenPos()) {
+  _createNode(type, pos = this._curToken().pos) {
     return new ASTNode(type, pos);
   }
 
@@ -420,7 +412,7 @@ class Parser {
     this._error(Error.UNEXPECTED_TOKEN(this._lexer.getCurToken()));
   }
 
-  _error(msg, { column, line } = this._curTokenPos()) {
+  _error(msg, { column, line } = this._curToken().pos) {
     throw new ParsingError({
       msg,
       src: this._source,

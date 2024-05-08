@@ -9,22 +9,10 @@ const TokenType = createEnum([
 ]);
 
 class Token {
-  constructor(type, value, pos = { line: -1, column: -1 }) {
-    this._type = type;
-    this._value = value;
-    this._pos = { ...pos };
-  }
-
-  type() {
-    return this._type;
-  }
-
-  value() {
-    return this._value;
-  }
-
-  pos() {
-    return { ...this._pos };
+  constructor(type, value, pos) {
+    this.type = type;
+    this.value = value;
+    this.pos = pos;
   }
 }
 

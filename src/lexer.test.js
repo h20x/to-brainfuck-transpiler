@@ -6,7 +6,7 @@ describe('Lexer', () => {
   test('should handle empty string', () => {
     ['', ' \t\n '].forEach((str) => {
       const lexer = createLexer(str);
-      expect(lexer.getNextToken().type()).toBe(_.EOF);
+      expect(lexer.getNextToken().type).toBe(_.EOF);
     });
   });
 
@@ -164,8 +164,8 @@ describe('Lexer', () => {
     expected.forEach(([type, value]) => {
       const token = lexer.getNextToken();
 
-      expect(token.type()).toBe(type);
-      expect(token.value()).toBe(value);
+      expect(token.type).toBe(type);
+      expect(token.value).toBe(value);
     });
   });
 
@@ -185,7 +185,7 @@ describe('Lexer', () => {
       { line: 1, column: 0 },
       { line: 1, column: 4 },
     ].forEach((pos) => {
-      expect(lexer.getNextToken().pos()).toMatchObject(pos);
+      expect(lexer.getNextToken().pos).toMatchObject(pos);
     });
   });
 });

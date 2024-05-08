@@ -5,7 +5,7 @@ class SymbolTable {
   }
 
   add(symbol) {
-    this._table.set(symbol.name(), symbol);
+    this._table.set(symbol.name, symbol);
   }
 
   get(name) {

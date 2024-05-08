@@ -3,22 +3,10 @@ const { createEnum } = require('./enum');
 const SymbolType = createEnum(['VAR', 'ARR', 'PROC']);
 
 class Sym {
-  constructor(name, type, astNode = null) {
-    this._name = name;
-    this._type = type;
-    this._astNode = astNode;
-  }
-
-  name() {
-    return this._name;
-  }
-
-  type() {
-    return this._type;
-  }
-
-  node() {
-    return this._astNode;
+  constructor(name, type, node = null) {
+    this.name = name;
+    this.type = type;
+    this.node = node;
   }
 }
 

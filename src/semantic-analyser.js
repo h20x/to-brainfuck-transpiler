@@ -79,7 +79,7 @@ class DefinitionChecker {
     const args = node.args.slice();
     const proc = args.shift();
     const actualParams = args;
-    const def = this._symTable.get(proc.name).node();
+    const def = this._symTable.get(proc.name).node;
     const formalParams = def.params;
 
     if (actualParams.length !== formalParams.length) {
@@ -106,19 +106,19 @@ class DefinitionChecker {
 
     switch (node.type) {
       case ASTNodeType.VAR_REF:
-        if (SymbolType.VAR !== sym.type()) {
+        if (SymbolType.VAR !== sym.type) {
           this._error(`'${name}' is not a variable`, pos);
         }
         break;
 
       case ASTNodeType.ARR_REF:
-        if (SymbolType.ARR !== sym.type()) {
+        if (SymbolType.ARR !== sym.type) {
           this._error(`'${name}' is not an array`, pos);
         }
         break;
 
       case ASTNodeType.PROC_REF:
-        if (SymbolType.PROC !== sym.type()) {
+        if (SymbolType.PROC !== sym.type) {
           this._error(`'${name}' is not a procedure`, pos);
         }
         break;

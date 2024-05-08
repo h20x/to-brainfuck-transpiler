@@ -122,7 +122,7 @@ class Transpiler {
 
   _transpileCall(node) {
     const [name, ...actualParams] = node.args.map(this._val);
-    const proc = this._symTable.get(name).node();
+    const proc = this._symTable.get(name).node;
     const formalParams = proc.params;
     const params = [];
 
