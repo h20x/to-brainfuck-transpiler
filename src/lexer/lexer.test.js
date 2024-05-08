@@ -1,5 +1,5 @@
 const { Lexer } = require('./lexer');
-const { Source } = require('./source');
+const { Source } = require('../source');
 const { TokenType: _ } = require('./token');
 
 describe('Lexer', () => {

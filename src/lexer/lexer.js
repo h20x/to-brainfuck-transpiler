@@ -1,4 +1,4 @@
-const { ParsingError } = require('./parsing-error');
+const { ParsingError } = require('../parsing-error');
 const { Token, TokenType } = require('./token');
 
 // prettier-ignore

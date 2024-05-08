@@ -1,7 +1,7 @@
-const { ASTNodeType } = require('./ast');
+const { ASTNodeType } = require('../ast/ast');
 const { SymbolTable } = require('./symbol-table');
 const { SymbolType, Sym } = require('./symbol');
-const { ParsingError } = require('./parsing-error');
+const { ParsingError } = require('../parsing-error');
 
 class SemanticAnalyser {
   constructor(ast, source, symTable) {

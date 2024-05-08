@@ -1,7 +1,7 @@
-const { Lexer } = require('./lexer');
+const { Lexer } = require('../lexer/lexer');
 const { Parser } = require('./parser');
-const { Source } = require('./source');
-const { ASTStringifier } = require('./ast-stringifier');
+const { Source } = require('../source');
+const { ASTStringifier } = require('../ast/ast-stringifier');
 const { SymbolTable } = require('./symbol-table');
 
 describe('Parser', () => {

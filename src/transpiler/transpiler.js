@@ -1,5 +1,5 @@
-const { BFM } = require('./bf/bfm');
-const { ASTNodeType } = require('../ast');
+const { BFM } = require('../bf/bfm');
+const { ASTNodeType } = require('../ast/ast');
 
 class Transpiler {
   constructor(ast, symTable) {

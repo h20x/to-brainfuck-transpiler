@@ -1,4 +1,4 @@
-const { createEnum } = require('./enum');
+const { createEnum } = require('../enum');
 
 const SymbolType = createEnum(['VAR', 'ARR', 'PROC']);
 

@@ -1,7 +1,7 @@
 const { SemanticAnalyser } = require('./semantic-analyser');
 const { Parser } = require('./parser');
-const { Lexer } = require('./lexer');
-const { Source } = require('./source');
+const { Lexer } = require('../lexer/lexer');
+const { Source } = require('../source');
 const { SymbolTable } = require('./symbol-table');
 
 describe('SemanticAnalyser', () => {

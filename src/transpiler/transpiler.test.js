@@ -1,10 +1,10 @@
 const { Source } = require('../source');
-const { Lexer } = require('../lexer');
-const { Parser } = require('../parser');
-const { SemanticAnalyser } = require('../semantic-analyser');
+const { Lexer } = require('../lexer/lexer');
+const { Parser } = require('../parser/parser');
+const { SemanticAnalyser } = require('../parser/semantic-analyser');
 const { Transpiler } = require('./transpiler');
-const { bfi } = require('./bf/bfi');
-const { SymbolTable } = require('../symbol-table');
+const { bfi } = require('../bf/bfi');
+const { SymbolTable } = require('../parser/symbol-table');
 
 describe('Transpiler', () => {
   test('set', () => {

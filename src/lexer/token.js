@@ -1,4 +1,4 @@
-const { createEnum } = require('./enum');
+const { createEnum } = require('../enum');
 
 // prettier-ignore
 const TokenType = createEnum([

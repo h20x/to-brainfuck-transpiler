@@ -1,7 +1,7 @@
-const { ASTNodeType, ASTNode } = require('./ast');
-const { TokenType } = require('./token');
+const { ASTNodeType, ASTNode } = require('../ast/ast');
+const { TokenType } = require('../lexer/token');
 const { SymbolType, Sym } = require('./symbol');
-const { ParsingError } = require('./parsing-error');
+const { ParsingError } = require('../parsing-error');
 
 const Error = {
   NESTED_VAR: () => 'Nested variable declaration',
