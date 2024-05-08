@@ -33,7 +33,7 @@ class Parser {
       children.push(this._parseStatement());
     }
 
-    node.attr('children', children);
+    node.children = children;
 
     return node;
   }
@@ -56,7 +56,7 @@ class Parser {
 
     this._consume(TokenType.END);
 
-    node.attr('children', children);
+    node.children = children;
 
     return node;
   }
@@ -202,7 +202,7 @@ class Parser {
   _parseStmt(nodeType, args) {
     const node = this._createNode(nodeType);
     this._getNextToken();
-    node.attr('args', this._parseArgs(args));
+    node.args = this._parseArgs(args);
 
     return node;
   }
@@ -210,8 +210,8 @@ class Parser {
   _parseCompoundStmt(nodeType, args) {
     const node = this._createNode(nodeType);
     this._getNextToken();
-    node.attr('args', this._parseArgs(args));
-    node.attr('body', this._parseNestedStatements());
+    node.args = this._parseArgs(args);
+    node.body = this._parseNestedStatements();
 
     return node;
   }
@@ -229,28 +229,28 @@ class Parser {
       this._unexpectedToken();
     }
 
-    node.attr('args', args);
+    node.args = args;
 
     return node;
   }
 
   _parseDecl() {
     const node = this._createNode(null);
-    node.attr('name', this._curTokenValue());
+    node.name = this._curTokenValue();
     this._consume(TokenType.ID);
 
     if (TokenType.LBRACKET === this._curTokenType()) {
       this._consume(TokenType.LBRACKET);
 
-      node.attr('size', this._curTokenValue());
+      node.size = this._curTokenValue();
 
       this._consume(TokenType.NUM);
       this._consume(TokenType.RBRACKET);
 
-      node.type(ASTNodeType.ARR_DECL);
+      node.type = ASTNodeType.ARR_DECL;
       this._addSym(SymbolType.ARR, node);
     } else {
-      node.type(ASTNodeType.VAR_DECL);
+      node.type = ASTNodeType.VAR_DECL;
       this._addSym(SymbolType.VAR, node);
     }
 
@@ -266,7 +266,7 @@ class Parser {
       args.push(this._parseRef(ASTNodeType.VAR_REF));
     }
 
-    node.attr('args', args);
+    node.args = args;
 
     return node;
   }
@@ -287,7 +287,7 @@ class Parser {
       this._unexpectedToken();
     }
 
-    node.attr('args', args);
+    node.args = args;
 
     return node;
   }
@@ -295,7 +295,7 @@ class Parser {
   _parseProcDef() {
     const node = this._createNode(ASTNodeType.PROC_DEF);
     this._consume(TokenType.PROC);
-    node.attr('name', this._curTokenValue());
+    node.name = this._curTokenValue();
     this._consume(TokenType.ID);
     const params = new Set();
 
@@ -303,15 +303,15 @@ class Parser {
       const param = this._curTokenValue();
 
       if (params.has(param)) {
-        this._error(Error.DUPLICATE_PARAM(param, node.attr('name')));
+        this._error(Error.DUPLICATE_PARAM(param, node.name));
       }
 
       params.add(param);
       this._getNextToken();
     }
 
-    node.attr('body', this._parseNestedStatements());
-    node.attr('params', [...params]);
+    node.body = this._parseNestedStatements();
+    node.params = [...params];
 
     this._addSym(SymbolType.PROC, node);
 
@@ -364,7 +364,7 @@ class Parser {
 
   _parseRef(nodeType) {
     const node = this._createNode(nodeType);
-    node.attr('name', this._curTokenValue());
+    node.name = this._curTokenValue();
     this._consume(TokenType.ID);
 
     return node;
@@ -372,7 +372,7 @@ class Parser {
 
   _parsePrimitive(nodeType) {
     const node = this._createNode(nodeType);
-    node.attr('value', this._curTokenValue());
+    node.value = this._curTokenValue();
     this._getNextToken();
 
     return node;
@@ -403,10 +403,10 @@ class Parser {
   }
 
   _addSym(type, node) {
-    const name = node.attr('name');
+    const { name } = node;
 
     if (this._symTable.has(name)) {
-      this._error(`'${name}' is already declared`, node.pos());
+      this._error(`'${name}' is already declared`, node.pos);
     }
 
     this._symTable.add(new Sym(name, type, node));

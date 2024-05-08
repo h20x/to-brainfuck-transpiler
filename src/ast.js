@@ -9,34 +9,16 @@ const ASTNodeType = createEnum([
 ]);
 
 class ASTNode {
-  constructor(type = null, pos = { line: -1, column: -1 }) {
-    this._type = type;
-    this._pos = { ...pos };
-    this._attrs = new Map();
-  }
-
-  type(val) {
-    if (null == val) {
-      return this._type;
-    }
-
-    this._type = val;
-  }
-
-  pos(val) {
-    if (null == val) {
-      return { ...this._pos };
-    }
-
-    this._pos = { ...val };
-  }
-
-  attr(name, val) {
-    if (null == val) {
-      return this._attrs.get(name);
-    }
-
-    this._attrs.set(name, val);
+  constructor(type = null, pos = null) {
+    this.type = type;
+    this.pos = pos;
+    this.args = null;
+    this.body = null;
+    this.children = null;
+    this.name = null;
+    this.params = null;
+    this.size = null;
+    this.value = null;
   }
 }
 

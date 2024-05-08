@@ -6,7 +6,7 @@ class ASTStringifier {
   }
 
   _stringifyNode(node) {
-    switch (node.type()) {
+    switch (node.type) {
       case ASTNodeType.STMT_LIST:
         return this._stringifyStmtList(node);
 
@@ -37,8 +37,7 @@ class ASTStringifier {
   }
 
   _stringifyStmtList(node) {
-    const children = node
-      .attr('children')
+    const children = node.children
       .map((node) => this._stringifyNode(node))
       .join(' ');
 
@@ -46,48 +45,42 @@ class ASTStringifier {
   }
 
   _stringifyStmt(node) {
-    return `${node.type()} ${this._stringifyArgs(node)}`;
+    return `${node.type} ${this._stringifyArgs(node)}`;
   }
 
   _stringifyCompoundStmt(node) {
     const args = this._stringifyArgs(node);
-    const body = this._stringifyNode(node.attr('body'));
+    const body = this._stringifyNode(node.body);
 
-    return `${node.type()} ${args} ${body}`;
+    return `${node.type} ${args} ${body}`;
   }
 
   _stringifyProcDef(node) {
-    const procName = node.attr('name');
-    const params = node
-      .attr('params')
-      .map((param) => `'${param}'`)
-      .join(' ');
-    const body = this._stringifyNode(node.attr('body'));
+    const { name } = node;
+    const params = node.params.map((param) => `'${param}'`).join(' ');
+    const body = this._stringifyNode(node.body);
 
-    return `${node.type()} '${procName}' (${params}) ${body}`;
+    return `${node.type} '${name}' (${params}) ${body}`;
   }
 
   _stringifyPrimitive(node) {
-    return `${node.type()} '${node.attr('value')}'`;
+    return `${node.type} '${node.value}'`;
   }
 
   _stringifyRef(node) {
-    return `${node.type()} '${node.attr('name')}'`;
+    return `${node.type} '${node.name}'`;
   }
 
   _stringifyDecl(node) {
-    if (ASTNodeType.ARR_DECL === node.type()) {
-      return `${node.type()} '${node.attr('name')}[${node.attr('size')}]'`;
+    if (ASTNodeType.ARR_DECL === node.type) {
+      return `${node.type} '${node.name}[${node.size}]'`;
     }
 
-    return `${node.type()} '${node.attr('name')}'`;
+    return `${node.type} '${node.name}'`;
   }
 
   _stringifyArgs(node) {
-    return node
-      .attr('args')
-      .map((node) => this._stringifyNode(node))
-      .join(' ');
+    return node.args.map((node) => this._stringifyNode(node)).join(' ');
   }
 }
 
