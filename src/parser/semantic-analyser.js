@@ -4,7 +4,7 @@ const { SymbolType, Sym } = require('./symbol');
 const { ParsingError } = require('../parsing-error');
 
 class SemanticAnalyser {
-  constructor(ast, source, symTable) {
+  constructor(source, ast, symTable) {
     this._ast = ast;
     this._source = source;
     this._symTable = symTable;
@@ -45,9 +45,13 @@ class DefinitionChecker {
         return this._checkCall(node);
 
       case ASTNodeType.VAR_REF:
+        return this._checkVarRef(node);
+
       case ASTNodeType.ARR_REF:
+        return this._checkArrRef(node);
+
       case ASTNodeType.PROC_REF:
-        return this._checkRef(node);
+        return this._checkProcRef(node);
 
       case ASTNodeType.IFEQ:
       case ASTNodeType.IFNEQ:
@@ -96,32 +100,30 @@ class DefinitionChecker {
     }
   }
 
-  _checkRef(node) {
-    const { name, pos } = node;
-    const sym = this._symTable.get(name);
+  _checkVarRef(node) {
+    this._checkIfDefined(node);
+    this._checkType(SymbolType.VAR, node, `'${node.name}' is not a variable`);
+  }
 
-    if (null == sym) {
-      this._error(`'${name}' is not defined`, pos);
+  _checkArrRef(node) {
+    this._checkIfDefined(node);
+    this._checkType(SymbolType.ARR, node, `'${node.name}' is not an array`);
+  }
+
+  _checkProcRef(node) {
+    this._checkIfDefined(node);
+    this._checkType(SymbolType.PROC, node, `'${node.name}' is not a procedure`);
+  }
+
+  _checkType(type, node, err) {
+    if (type !== this._symTable.get(node.name).type) {
+      this._error(err, node.pos);
     }
+  }
 
-    switch (node.type) {
-      case ASTNodeType.VAR_REF:
-        if (SymbolType.VAR !== sym.type) {
-          this._error(`'${name}' is not a variable`, pos);
-        }
-        break;
-
-      case ASTNodeType.ARR_REF:
-        if (SymbolType.ARR !== sym.type) {
-          this._error(`'${name}' is not an array`, pos);
-        }
-        break;
-
-      case ASTNodeType.PROC_REF:
-        if (SymbolType.PROC !== sym.type) {
-          this._error(`'${name}' is not a procedure`, pos);
-        }
-        break;
+  _checkIfDefined(node) {
+    if (!this._symTable.has(node.name)) {
+      this._error(`'${node.name}' is not defined`, node.pos);
     }
   }
 

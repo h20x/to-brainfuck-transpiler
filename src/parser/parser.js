@@ -323,7 +323,17 @@ class Parser {
   }
 
   _parseArg(unionType) {
-    const tokenType = unionType.find((type) => this._compareTokenType(type));
+    const tokenType = unionType.find((type) => {
+      switch (type) {
+        case TokenType.VAR_REF:
+        case TokenType.ARR_REF:
+        case TokenType.PROC_REF:
+          return TokenType.ID === this._curToken().type;
+
+        default:
+          return type === this._curToken().type;
+      }
+    });
 
     if (!tokenType) {
       this._unexpectedToken();
@@ -348,18 +358,6 @@ class Parser {
       default:
         this._unexpectedToken();
     }
-  }
-
-  _compareTokenType(type) {
-    if (
-      TokenType.VAR_REF === type ||
-      TokenType.ARR_REF === type ||
-      TokenType.PROC_REF === type
-    ) {
-      type = TokenType.ID;
-    }
-
-    return type === this._curToken().type;
   }
 
   _parseRef(nodeType) {

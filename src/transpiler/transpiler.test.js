@@ -682,7 +682,7 @@ function transpile(code) {
   const symTable = new SymbolTable();
   const parser = new Parser(source, lexer, symTable);
   const ast = parser.parse();
-  new SemanticAnalyser(ast, source, symTable).analyse();
+  new SemanticAnalyser(source, ast, symTable).analyse();
 
   return new Transpiler(ast, symTable).transpile();
 }
