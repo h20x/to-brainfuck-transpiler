@@ -425,7 +425,7 @@ describe('Fixed Tests', () => {
         'Inner After : UV',
         'Outer After : VU',
         '',
-      ].join('\\n')
+      ].join('\n')
     );
   });
 });

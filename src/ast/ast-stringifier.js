@@ -64,7 +64,13 @@ class ASTStringifier {
   }
 
   _stringifyPrimitive(node) {
-    return `${node.type} '${node.value}'`;
+    let { value } = node;
+
+    if (ASTNodeType.STR === node.type) {
+      value = value.replace(/\n/g, ' ');
+    }
+
+    return `${node.type} '${value}'`;
   }
 
   _stringifyRef(node) {

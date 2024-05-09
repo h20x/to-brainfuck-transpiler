@@ -121,9 +121,9 @@ describe('Parser', () => {
           SET VAR_REF 'a' NUM '85'
           SET VAR_REF 'b' NUM '86'
 
-          MSG STR 'Outer Before : ' VAR_REF 'a' VAR_REF 'b' STR '\\n'
+          MSG STR 'Outer Before : ' VAR_REF 'a' VAR_REF 'b' STR '\n'
           CALL PROC_REF 'swap' VAR_REF 'b' VAR_REF 'a'
-          MSG STR 'Outer After : ' VAR_REF 'a' VAR_REF 'b' STR '\\n'
+          MSG STR 'Outer After : ' VAR_REF 'a' VAR_REF 'b' STR '\n'
 
           SET VAR_REF 'f' NUM '10'
           WNEQ VAR_REF 'f' NUM '0' {
@@ -146,16 +146,16 @@ describe('Parser', () => {
           }
 
           PROC_DEF 'swap' ('x' 'y') {
-            MSG STR 'Inner Before : ' VAR_REF 'x' VAR_REF 'y' STR '\\n'
+            MSG STR 'Inner Before : ' VAR_REF 'x' VAR_REF 'y' STR '\n'
             SET VAR_REF 't' VAR_REF 'x'
             CALL PROC_REF 'say' VAR_REF 't'
             SET VAR_REF 'x' VAR_REF 'y'
             SET VAR_REF 'y' VAR_REF 't'
-            MSG STR 'Inner After : ' VAR_REF 'x' VAR_REF 'y' STR '\\n'
+            MSG STR 'Inner After : ' VAR_REF 'x' VAR_REF 'y' STR '\n'
           }
 
           PROC_DEF 'say' ('x') {
-            MSG STR 'It is ' VAR_REF 'x' STR ' now\\n'
+            MSG STR 'It is ' VAR_REF 'x' STR ' now\n'
           }
         }`,
     ],

@@ -79,7 +79,7 @@ describe('Lexer', () => {
       ],
     ],
     [
-      `'a' '.' '-' '\\' '\'' '\"' '\n' '\r' '\t'`,
+      `'a' '.' '-' '\\' '\\'' '\\"' '\\n' '\\r' '\\t'`,
       [
         [_.NUM, 97],
         [_.NUM, 46],
@@ -97,7 +97,7 @@ describe('Lexer', () => {
       `"" "abc \\" def"`,
       [
         [_.STR, ''],
-        [_.STR, 'abc \\" def'],
+        [_.STR, 'abc " def'],
         [_.EOF, null],
       ],
     ],
@@ -138,7 +138,7 @@ describe('Lexer', () => {
         [_.SET, 'set'], [_.ID, 'a'], [_.NUM, 85],
         [_.SET, 'set'], [_.ID, 'f'], [_.NUM, -1],
 
-        [_.MSG, 'msg'], [_.STR, 'Outer Before : '], [_.ID, 'a'], [_.ID, 'b'], [_.STR, '\\n'],
+        [_.MSG, 'msg'], [_.STR, 'Outer Before : '], [_.ID, 'a'], [_.ID, 'b'], [_.STR, '\n'],
         [_.CALL, 'call'], [_.ID, 'swap'], [_.ID, 'b'], [_.ID, 'a'],
 
         [_.PROC, 'proc'], [_.ID, 'swap'], [_.ID, 'x'], [_.ID, 'y'],

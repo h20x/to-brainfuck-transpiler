@@ -39,24 +39,24 @@ class Lexer {
         tokenValue = Number(this._readNum());
         break;
 
-      case this._isChar("'"):
+      case this._isElem("'"):
         tokenType = TokenType.NUM;
-        tokenValue = this._readCharLiteral().charCodeAt();
+        tokenValue = this._readChar().charCodeAt();
         break;
 
-      case this._isChar('"'):
+      case this._isElem('"'):
         tokenType = TokenType.STR;
         tokenValue = this._readString();
         break;
 
-      case this._isChar('['):
+      case this._isElem('['):
         tokenType = TokenType.LBRACKET;
-        tokenValue = this._readChar();
+        tokenValue = this._readElem();
         break;
 
-      case this._isChar(']'):
+      case this._isElem(']'):
         tokenType = TokenType.RBRACKET;
-        tokenValue = this._readChar();
+        tokenValue = this._readElem();
         break;
 
       case this._isLetter$_():
@@ -92,7 +92,7 @@ class Lexer {
     let word = '';
 
     while (this._isLetter$_() || this._isDigit()) {
-      word += this._readChar();
+      word += this._readElem();
     }
 
     return word;
@@ -102,22 +102,30 @@ class Lexer {
     let num = '';
 
     do {
-      num += this._readChar();
+      num += this._readElem();
     } while (this._isDigit());
 
     return num;
   }
 
-  _readCharLiteral() {
-    const str = this._source.peek(3);
+  _readChar() {
+    let s = this._source.peek(4);
 
-    if (!/'(.|\s)'/.test(str)) {
-      this._error('Invalid CHAR');
+    if (/'(\\'|\\"|\\n|\\r|\\t)'/.test(s)) {
+      this._source.advance(4);
+
+      return this._escape(s[2]);
     }
 
-    this._source.advance(3);
+    s = this._source.peek(3);
 
-    return str[1];
+    if (/'[^'"\n]'/.test(s)) {
+      this._source.advance(3);
+
+      return s[1];
+    }
+
+    this._error('Invalid CHAR');
   }
 
   _readString() {
@@ -126,7 +134,7 @@ class Lexer {
     this._source.advance();
 
     const closingQuote = () => {
-      return this._isChar('"') && '\\' !== str[str.length - 1];
+      return this._isElem('"') && '\\' !== str[str.length - 1];
     };
 
     const endOfString = () => {
@@ -136,23 +144,41 @@ class Lexer {
     let str = '';
 
     while (!endOfString()) {
-      str += this._readChar();
+      str += this._readElem();
     }
 
-    if (!this._isChar('"')) {
+    if (!this._isElem('"')) {
       this._error('Unclosed string', pos);
     }
+
+    str = str.replace(/\\(.)/g, (_, p) => this._escape(p));
 
     this._source.advance();
 
     return str;
   }
 
-  _readChar() {
-    const ch = this._source.peek();
+  _escape(ch) {
+    switch (ch) {
+      case 'n':
+        return '\n';
+
+      case 'r':
+        return '\r';
+
+      case 't':
+        return '\t';
+
+      default:
+        return ch;
+    }
+  }
+
+  _readElem() {
+    const el = this._source.peek();
     this._source.advance();
 
-    return ch;
+    return el;
   }
 
   _isComment() {
@@ -175,8 +201,8 @@ class Lexer {
     return /^-?\d/.test(this._source.peek(2));
   }
 
-  _isChar(ch) {
-    return ch === this._source.peek();
+  _isElem(el) {
+    return el === this._source.peek();
   }
 
   _error(msg, { column, line } = this._source.pos()) {
