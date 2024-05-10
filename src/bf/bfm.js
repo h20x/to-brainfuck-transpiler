@@ -11,7 +11,7 @@ class BFM extends BFMBasic {
   }
 
   enter(args) {
-    const vt = new VarTable(this._globScope());
+    const vt = new VarTable(this._curScope());
 
     for (const [name, alias] of args) {
       vt.addAlias(name, alias);

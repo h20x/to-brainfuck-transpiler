@@ -661,6 +661,36 @@ describe('Advanced Tests', () => {
   });
 });
 
+describe('Random tests', () => {
+  test('vAr fbI5Ek_lyHA8t2nW4Y6ppZJIjd fFgAKzJdfPbJsw_Dy9auo', () => {
+    expect(
+      run(
+        `vAr fbI5Ek_lyHA8t2nW4Y6ppZJIjd fFgAKzJdfPbJsw_Dy9auo GTUZvgy3LoYSC3$LvJOnbiG uMcorkO7PC6WS3oPSyitU9Hk8o
+         REaD FBi5EK_lYHa8t2Nw4y6PPzjiJd
+         cmp 100 fbI5Ek_LYhA8T2nw4Y6pPZjijD fFgaKZjDFpbjSW_Dy9AUO
+         ifeq FfGaKZjdFPBjsW_DY9Auo -1
+           cAll a6NmC0W0g76T6ig$uH42gUG3XcZbOeCUdfXdfN FbI5EK_lyhA8t2nW4Y6pPZJIjd
+         ENd
+         ifneQ ffGaKzJDfpbJsW_dY9aUO 0
+           MSG "7//77"
+         ENd
+         iFEQ ffgaKZJdFpbjsW_DY9aUO 1
+           caLL ZJf0jZeJXt2DDLiX76nZ1 fbI5Ek_LyHa8T2Nw4y6pPzjijD
+         END
+         pRoc a6nMc0w0G76T6IG$uh42gug3XcZboeCudFxDFn $$
+           B2A $$ $$ gTUZvgy3loysC3$LVJoNbIg UMCOrkO7PC6WS3OpSYITU9HK8o
+           MsG FBi5EK_lYHa8T2Nw4y6PpzjIJd gTUzVGY3loYSc3$LVjoNbiG UMCoRkO7PC6wS3OpSYItU9hk8o
+         End
+         prOc ZJf0JZejXt2DDLix76nZ1 $_
+           A2B $_ $_ $_ $_
+           cAll A6nMC0W0G76T6Ig$Uh42guG3xcZboECudfxdfN $_
+         EnD`,
+        String.fromCharCode(244)
+      ).out()
+    ).toBe('2447//77');
+  });
+});
+
 function run(prog, input) {
   const bf = kcuf(prog);
   const result = bfi(bf, input);
