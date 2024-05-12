@@ -44,7 +44,7 @@ class BFM extends BFMBasic {
         throw new Error(`A variable name can't start with '+'`);
       }
 
-      this._globScope().add({ name, size, index: this._ss });
+      this._curScope().add({ name, size, index: this._ss });
 
       this._ss += size;
       this._se += size;
@@ -455,10 +455,6 @@ class BFM extends BFMBasic {
 
   _curScope() {
     return this._scopes[this._scopes.length - 1];
-  }
-
-  _globScope() {
-    return this._scopes[0];
   }
 }
 
